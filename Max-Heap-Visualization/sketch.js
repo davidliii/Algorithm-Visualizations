@@ -1,14 +1,36 @@
 let width = 1500;
 let height = 900;
+tree = null;
+let tree_made = false;
+let heap_made = false;
+let tree_displayed = false;
 
 function setup() {
     window.canvas = createCanvas(width, height);
-    tree = new Tree(127);
-    noLoop();
+
+    node_input = createInput();
+    node_input.size(45, 20);
+    node_input.position(50, 20);
+
+    build_tree = createButton("Build Tree");
+    build_tree.position(50, 50);
+    build_tree.mousePressed(create_tree);
+
+    /*make_heap = createButton("Make Heap");
+    make_heap.position(50, 50);
+    make_heap.mousePressed(make_heap);*/
+
+    extract_button = createButton("Extract Max");
+    extract_button.position(50, 80);
+    reset_background();
+    //noLoop();
 }
 
 function draw() {
-    tree.display_tree();
+    if ((tree_made || heap_made) & !tree_displayed) {
+        tree.display_tree();
+        tree_displayed = true;
+    }
 }
 
 function sleep(time) {
@@ -44,4 +66,15 @@ function draw_legend() {
 function reset_background() {
     background(200, 200, 200);
     draw_legend();
+    fill(0, 0, 0);
+    textSize(14);
+    textAlign(LEFT, CENTER);
+    text("Number of Nodes", 95, 22);
+}
+
+function create_tree() {
+    let val = Number(node_input.value());
+    tree = new Tree(val);
+    tree_made = true;
+    tree_displayed = false;
 }

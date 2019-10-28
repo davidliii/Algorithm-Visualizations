@@ -3,20 +3,19 @@ class Tree {
         this.num_nodes = num_nodes;
         this.node_values = this.generate_node_values(255, 30);
         this.height = this.get_tree_height()
-        this.nodes = this.init_heap(0, 1000);
+        this.nodes = this.init_heap();
     }
 
-    init_heap(max, min) {
+    init_heap() {
         var nodes = new Array(this.num_nodes);
         var max_nodes_in_level = 1;
         var curr_nodes_in_level = 0;
         var node_x = width / 2;
         var start_x = node_x;
         var node_y = 60;
-        var size = 17;
+        var size = 10;
         var text_size = 12;
         var dist_between_nodes = Math.pow(2, this.height - 1) * size * 2;
-
         var curr_level = 0;
 
         for (let i = 0; i < this.num_nodes; i++) {
