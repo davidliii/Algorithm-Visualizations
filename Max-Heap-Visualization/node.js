@@ -4,11 +4,14 @@ class Node {
         this.x = x;
         this.y = y;
         this.size = size;
+        this.r = 0;
+        this.g = this.data;
+        this.b = this.data - 10
     }
 
     show() {
-        fill(0, this.data, this.data - 10);
-        stroke(0, 0, 0);
+        fill(this.r, this.g, this.b);
+        stroke(this.r);
         strokeWeight(1);
         ellipseMode(CENTER);
         ellipse(this.x, this.y, this.size);

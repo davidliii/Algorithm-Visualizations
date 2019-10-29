@@ -1,49 +1,41 @@
-let width = 1500;
+let width = 1500; // canvas parameters
 let height = 900;
+
 tree = null;
-let tree_made = false;
+
 let heap_made = false;
 let tree_displayed = false;
+let heapify_done = false;
 
 function setup() {
+    frameRate(5);
     window.canvas = createCanvas(width, height);
 
     node_input = createInput(); //user input for number of nodes
     node_input.size(45, 20);
     node_input.position(50, 20);
 
-    build_tree = createButton("Build Tree"); //button to initialize tree
+    build_tree = createButton("Build Heap"); //button to initialize tree
     build_tree.position(50, 50);
     build_tree.mousePressed(create_tree);
 
-    make_heap = createButton("Make Heap"); //button to initialize heap
-    make_heap.position(50, 80);
-    make_heap.mousePressed(make_heap);
-
     extract_button = createButton("Extract Max"); //button to extract max of heap
-    extract_button.position(50, 110);
+    extract_button.position(50, 80);
     extract_button.mousePressed(extract_heap_max);
 
 
     clear_button = createButton("Clear Tree"); //button to reset and clear tree
-    clear_button.position(50, 140);
+    clear_button.position(50, 110);
     clear_button.mousePressed(reset_background);
     reset_background();
+    noLoop();
 }
 
 function draw() {
-    if ((tree_made || heap_made) & !tree_displayed) { //if tree active is not displayed and
+    console.log("draw");
+    if ((heap_made) && !tree_displayed) { //if tree active is not displayed and
         tree.display_tree();
         tree_displayed = true;
-    }
-}
-
-function sleep(time) { //generic sleep function, input time in ms
-    let start = new Date().getTime();
-    for (let i = 0; i < 1e7; i++) {
-        if ((new Date().getTime() - start) > time) {
-            break;
-        }
     }
 }
 
@@ -76,28 +68,26 @@ function reset_background() { //draws gray backgroudn with legend correctly orie
     textSize(14);
     textAlign(LEFT, CENTER);
     text("Number of Nodes", 95, 22);
-    tree_made = false;
-    heap_made = false;
-    tree_displayed = false;
 }
 
 function create_tree() { //initializes a tree (non heap)
     let val = Number(node_input.value());
-    tree = new Tree(val);
-    tree_made = true;
-    tree_displayed = false;
-}
-
-function make_tree_heap() {
-
-}
-
-function extract_heap_max() {
-    if (!heap_made) {
-        strokeWeight(0.1);
-        fill(0, 0, 0);
-        textSize(14);
-        textAlign(LEFT, CENTER);
-        text("Create a heap first!", 137, 113);
+        if (!isNaN(val)) {
+            tree = new Tree(val);
+            heap_made = true;
+            tree_displayed = false;
     }
+    redraw();
+}
+
+function extract_heap_max() { // TODO: implement extraction, refresh, then heapify
+    clear_node(0);
+    tree_displayed = false;
+    redraw();
+}
+
+function clear_node(idx) {
+    tree.nodes[idx].r = 200;
+    tree.nodes[idx].g = 200;
+    tree.nodes[idx].b = 200;
 }

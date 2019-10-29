@@ -1,12 +1,12 @@
 class Tree {
     constructor(num_nodes) {
         this.num_nodes = num_nodes;
-        this.node_values = this.generate_node_values(255, 10);
+        this.node_values = this.generate_node_values(255, 35);
         this.height = this.get_tree_height()
-        this.nodes = this.init_heap();
+        this.nodes = this.init_tree();
     }
 
-    init_heap() {
+    init_tree() {
         var nodes = new Array(this.num_nodes);
         var max_nodes_in_level = 1;
         var curr_nodes_in_level = 0;
@@ -42,7 +42,31 @@ class Tree {
         for (let i = 0; i < this.num_nodes; i++) {
             values[i] = Math.floor(Math.random() * max + 1) + min;
         }
+
+        for (let i = Math.floor(values.length / 2) - 1; i >= 0; i--) {
+            this.heapify(values, i);
+        }
+
         return values;
+    }
+
+    heapify(values, curr_idx) {
+        let left_idx = 2 * curr_idx + 1;
+        let right_idx = 2 * curr_idx + 2;
+
+        if (left_idx < values.length && values[curr_idx] > values[left_idx]) {
+            let temp = values[curr_idx];
+            values[curr_idx] = values[left_idx];
+            values[left_idx] = temp;
+            this.heapify(values, left_idx);
+        }
+
+        if (right_idx < values.length && values[curr_idx] > values[right_idx]) {
+            let temp = values[curr_idx];
+            values[curr_idx] = values[right_idx];
+            values[right_idx] = temp
+            this.heapify(values, right_idx);
+        }
     }
 
     get_tree_height() {
@@ -70,4 +94,5 @@ class Tree {
             this.nodes[i].show();
         }
     }
+
 }
