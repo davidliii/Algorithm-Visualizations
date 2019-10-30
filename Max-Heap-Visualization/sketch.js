@@ -7,8 +7,9 @@ let heap_made = false;
 let tree_displayed = false;
 let heapify_done = false;
 
+let max = null;
+
 function setup() {
-    //frameRate(1);
     window.canvas = createCanvas(width, height);
 
     node_input = createInput(); //user input for number of nodes
@@ -29,9 +30,9 @@ function setup() {
 
     clear_button = createButton("Clear Tree"); //button to reset and clear tree
     clear_button.position(50, 140);
-    clear_button.mousePressed(reset_background);
+    clear_button.mousePressed(reset_background, true);
 
-    reset_background();
+    reset_background(true);
     noLoop(); //using redraw() to control animmation
 }
 
@@ -64,7 +65,7 @@ function draw_legend() { //draws gradient showing node values as colors
     text("0", legend_x_start + legend_w, 30);
 }
 
-function reset_background() { //draws gray background with legend correctly oriented
+function reset_background(clear_max) { //draws gray background with legend correctly oriented
     background(200, 200, 200);
     draw_legend();
     fill(0, 0, 0);
@@ -72,7 +73,29 @@ function reset_background() { //draws gray background with legend correctly orie
     textSize(14);
     textAlign(LEFT, CENTER);
     text("Number of Nodes", 95, 22);
+    text("Last Max Extracted: ", 230, 22);
+
+    if (max != null && clear_max == false) {
+        fill(0, max, max - 10);
+        stroke(0);
+        strokeWeight(1);
+        ellipseMode(CENTER);
+        ellipse(370, 22, 23);
+
+        if (max > 130) {
+            fill(0, 0, 0);
+        }
+        else {
+            fill(255, 255, 255);
+        }
+
+        strokeWeight(0.1);
+        textSize(10);
+        textAlign(CENTER, CENTER);
+        text(max, 370, 22);
+    }
     heap_made = false;
+
 }
 
 function create_tree() { //initializes a tree (non heap)
@@ -81,6 +104,7 @@ function create_tree() { //initializes a tree (non heap)
             tree = new Tree(val);
             heap_made = true;
             tree_displayed = false;
+            max = null;
     }
     redraw();
 }
@@ -94,6 +118,7 @@ function extract_heap_max() {
         text("Make a heap first!", 135, 83);
     }
     else {
+        max = tree.nodes[0].data;
         clear_node(0);
         tree_displayed = false;
         redraw();
@@ -109,7 +134,7 @@ function clear_node(idx) {
 function heapify_all() {
     //setInterval(heapify_init, 500);
     heapify_init(); //remove right-most node and set it to the root
-    setTimeout(heapify, 1000, 0); //perform heapify, redraw after each iteration
+    setTimeout(heapify, 250, 0); //perform heapify, redraw after each iteration
 }
 
 function heapify_init() {
@@ -125,21 +150,23 @@ function heapify_init() {
     redraw();
 }
 
-function heapify(node_idx) {
+function heapify(node_idx) { //TODO biasing occurs, need to find greater child node fix in tree init also
     let left_idx = 2 * node_idx + 1;
     let right_idx = 2 * node_idx + 2;
 
+    let max_idx = node_idx;
 
-    if (left_idx < tree.nodes.length && tree.nodes[node_idx].data < tree.nodes[left_idx].data) {
-        //setTimeout(swap_node_data, 500, node_idx, left_idx);
-        swap_node_data(node_idx, left_idx);
-        setTimeout(heapify, 500, left_idx);
+    if (left_idx < tree.nodes.length && tree.nodes[left_idx].data > tree.nodes[max_idx].data) {
+        max_idx = left_idx;
     }
 
-    else if (right_idx < tree.nodes.length && tree.nodes[node_idx].data < tree.nodes[right_idx].data) {
-        //setTimeout(swap_node_data, 500, node_idx, right_idx);
-        swap_node_data(node_idx, right_idx);
-        setTimeout(heapify, 500, right_idx);
+    if (right_idx < tree.nodes.length && tree.nodes[right_idx].data > tree.nodes[max_idx].data) {
+        max_idx = right_idx;
+    }
+
+    if (max_idx != node_idx) {
+        swap_node_data(max_idx, node_idx);
+        setTimeout(heapify, 250, max_idx);
     }
 }
 
@@ -160,5 +187,4 @@ function swap_node_data(node1, node2) {
     tree.nodes[node2].b = temp_b;
     tree_displayed = false;
     redraw();
-    console.log("swapped");
 }

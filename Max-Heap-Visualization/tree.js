@@ -14,6 +14,7 @@ class Tree {
         var start_x = node_x;
         var node_y = 60;
         var size = 11.5;
+        //var size = 20 + this.num_nodes * -.01;
         var text_size = 12;
         var dist_between_nodes = Math.pow(2, this.height - 1) * size * 2;
         var curr_level = 0;
@@ -29,7 +30,7 @@ class Tree {
                 max_nodes_in_level *= 2;
                 curr_nodes_in_level = 0;
                 dist_between_nodes /= 2;
-                node_y += 50;
+                node_y += 60;
                 node_x = start_x - dist_between_nodes / 2;
                 start_x = node_x;
             }
@@ -54,18 +55,21 @@ class Tree {
         let left_idx = 2 * curr_idx + 1;
         let right_idx = 2 * curr_idx + 2;
 
-        if (left_idx < values.length && values[curr_idx] < values[left_idx]) {
-            let temp = values[curr_idx];
-            values[curr_idx] = values[left_idx];
-            values[left_idx] = temp;
-            this.heapify(values, left_idx);
+        let max_idx = curr_idx;
+
+        if (left_idx < values.length && values[left_idx] > values[max_idx]) {
+            max_idx = left_idx;
         }
 
-        if (right_idx < values.length && values[curr_idx] < values[right_idx]) {
-            let temp = values[curr_idx];
-            values[curr_idx] = values[right_idx];
-            values[right_idx] = temp
-            this.heapify(values, right_idx);
+        if (right_idx < values.length && values[right_idx] > values[max_idx]) {
+            max_idx = right_idx;
+        }
+
+        if (max_idx != curr_idx) {
+            let temp = values[max_idx];
+            values[max_idx] = values[curr_idx];
+            values[curr_idx] = temp;
+            this.heapify(values, max_idx);
         }
     }
 
@@ -74,7 +78,7 @@ class Tree {
     }
 
     display_tree() {
-        reset_background();
+        reset_background(false);
         this.show_all_nodes();
     }
 
