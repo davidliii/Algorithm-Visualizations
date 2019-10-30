@@ -14,7 +14,6 @@ class Tree {
         var start_x = node_x;
         var node_y = 60;
         var size = 11.5;
-        //var size = 20 + this.num_nodes * -.01;
         var text_size = 12;
         var dist_between_nodes = Math.pow(2, this.height - 1) * size * 2;
         var curr_level = 0;
@@ -85,7 +84,7 @@ class Tree {
     show_all_nodes() {
         stroke(0, 0, 0);
         strokeWeight(1);
-        var max_idx = this.nodes.length - 1;
+        let max_idx = this.nodes.length - 1;
         for (let j = 0; 2 * j + 1 <= max_idx; j++) {
             line(this.nodes[j].x, this.nodes[j].y, this.nodes[2 * j + 1].x, this.nodes[2 * j + 1].y);
         }
