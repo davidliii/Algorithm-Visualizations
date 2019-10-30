@@ -1,7 +1,7 @@
 class Tree {
     constructor(num_nodes) {
         this.num_nodes = num_nodes;
-        this.node_values = this.generate_node_values(255, 35);
+        this.node_values = this.generate_node_values(255, 0);
         this.height = this.get_tree_height()
         this.nodes = this.init_tree();
     }
@@ -54,14 +54,14 @@ class Tree {
         let left_idx = 2 * curr_idx + 1;
         let right_idx = 2 * curr_idx + 2;
 
-        if (left_idx < values.length && values[curr_idx] > values[left_idx]) {
+        if (left_idx < values.length && values[curr_idx] < values[left_idx]) {
             let temp = values[curr_idx];
             values[curr_idx] = values[left_idx];
             values[left_idx] = temp;
             this.heapify(values, left_idx);
         }
 
-        if (right_idx < values.length && values[curr_idx] > values[right_idx]) {
+        if (right_idx < values.length && values[curr_idx] < values[right_idx]) {
             let temp = values[curr_idx];
             values[curr_idx] = values[right_idx];
             values[right_idx] = temp
@@ -81,7 +81,7 @@ class Tree {
     show_all_nodes() {
         stroke(0, 0, 0);
         strokeWeight(1);
-        var max_idx = this.num_nodes - 1;
+        var max_idx = this.nodes.length - 1;
         for (let j = 0; 2 * j + 1 <= max_idx; j++) {
             line(this.nodes[j].x, this.nodes[j].y, this.nodes[2 * j + 1].x, this.nodes[2 * j + 1].y);
         }
@@ -90,7 +90,7 @@ class Tree {
             line(this.nodes[j].x, this.nodes[j].y, this.nodes[2 * j + 2].x, this.nodes[2 * j + 2].y);
         }
 
-        for (let i = 0; i < this.num_nodes; i++) {
+        for (let i = 0; i < this.nodes.length; i++) {
             this.nodes[i].show();
         }
     }

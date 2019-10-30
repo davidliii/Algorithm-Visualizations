@@ -16,9 +16,4 @@ class Node {
         ellipseMode(CENTER);
         ellipse(this.x, this.y, this.size);
     }
-
-    move(new_x, new_y) {
-        this.x = new_x;
-        this.y = new_y;
-    }
 }
