@@ -15,7 +15,7 @@ let min_speed = 1000;
 let speed_offset = max_speed + min_speed;
 
 function setup() {
-    window.canvas = createCanvas(width, height);
+    canvas = createCanvas(width, height);
 
     node_input = createInput(); //user input for number of nodes
     node_input.size(45, 20);
@@ -37,8 +37,12 @@ function setup() {
     heapify_button.position(50, 110);
     heapify_button.mousePressed(heapify_all);
 
+    heap_sort = createButton("Extract Max + Heapify"); //button to reorganize heap
+    heap_sort.position(50, 140);
+    heap_sort.mousePressed(extract_heapify);
+
     clear_button = createButton("Clear Tree"); //button to reset and clear tree
-    clear_button.position(50, 140);
+    clear_button.position(50, 170);
     clear_button.mousePressed(reset_background, true);
 
     reset_background(true);
@@ -85,6 +89,7 @@ function reset_background(clear_max) { //draws gray background with legend corre
     text("Number of Nodes", 95, 22);
     text("Last Max Extracted: ", 230, 22);
 
+    textSize(12);
     text("Slower", 920, 30);
     text("Faster", 1060, 30);
 
@@ -134,6 +139,7 @@ function extract_heap_max() {
         clear_node(0);
         tree_displayed = false;
         redraw();
+        return max;
     }
 }
 
@@ -208,4 +214,11 @@ function swap_node_data(node1, node2) {
     tree.nodes[node2].b = temp_b;
     tree_displayed = false;
     redraw();
+}
+
+function extract_heapify() {
+    if (tree != null) {
+        extract_heap_max();
+        setTimeout(heapify_all, speed_offset + -1 * speed_slider.value());
+    }
 }
