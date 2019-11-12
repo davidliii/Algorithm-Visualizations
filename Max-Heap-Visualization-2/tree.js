@@ -1,7 +1,7 @@
 class Tree {
     constructor(num_nodes) {
         this.num_nodes = num_nodes;
-        this.node_values = this.generate_node_values(0, 100);
+        this.node_values = this.generate_node_values(0, 999);
         this.nodes = this.init_nodes();
         this.edges = this.init_edges();
     }
