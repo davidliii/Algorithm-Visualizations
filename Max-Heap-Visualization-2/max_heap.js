@@ -34,49 +34,6 @@ function create_visualization(tree) { //given tree object, builds canvas visuali
         edges: edges
     };
 
-    let options = {
-        autoResize:true,
-        height:'100%',
-        width:'100%',
-        locale:'en',
-
-        nodes: {
-            color:'rgba(184, 227, 244, 1)',
-            shape:'circle',
-            font: {
-                align:'center'
-            }
-        },
-
-        edges: {
-            color:'black',
-            selectionWidth:0.1,
-            width:1
-        },
-
-        physics: {
-            enabled:false
-        },
-
-        layout: {
-            hierarchical: {
-                enabled:true,
-                parentCentralization:true,
-                sortMethod:'directed',
-                direction:'UD',
-                shakeTowards:'roots',
-                nodeSpacing:30,
-                levelSeparation:200,
-                blockShifting:true,
-                edgeMinimization:true
-            }
-        },
-
-        configure: {
-            enabled:false
-        },
-    };
-
     let network = new vis.Network(container, data, options);
 }
 
