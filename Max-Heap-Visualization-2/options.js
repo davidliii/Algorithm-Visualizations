@@ -31,10 +31,10 @@ var options = { // network visualization options
             sortMethod:'directed',
             direction:'UD',
             shakeTowards:'roots',
-            nodeSpacing:30,
+            nodeSpacing:34,
             levelSeparation:200,
             blockShifting:true,
-            edgeMinimization:true
+            edgeMinimization:false
         }
     },
 

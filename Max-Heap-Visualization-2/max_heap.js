@@ -1,8 +1,12 @@
-let width = 900; // canvas parameters
-let height = 600;
+let width = 1000; // canvas parameters
+let height = 650;
 let update_canvas = true; // redraw flag
 let tree = null;
 let network = null;
+
+let nodes = null; // node network dataset
+let edges = null; // edge network dataset
+let root = null; //use to keep track of the id of the root
 
 function init_tree_parameters(num_nodes) { // initialize tree object
     return new Tree(num_nodes);
@@ -18,14 +22,14 @@ function create_tree() { // creates tree object and draws to canvas
 }
 
 function reset_tree() { //clears tree
-    tree = init_tree_parameters(0);
-    update_canvas = true;
-    redraw();
+    tree = null
+    network.destroy();
+    network = null;
 }
 
 function create_visualization(tree) { //given tree object, builds canvas visualization
-    let nodes = new vis.DataSet(tree.nodes);
-    let edges = new vis.DataSet(tree.edges);
+    nodes = new vis.DataSet(tree.nodes);
+    edges = new vis.DataSet(tree.edges);
 
     let container = document.getElementById('mynetwork');
 
@@ -35,6 +39,7 @@ function create_visualization(tree) { //given tree object, builds canvas visuali
     };
 
     network = new vis.Network(container, data, options);
+    root = 0;
 }
 
 function setup() {
@@ -42,34 +47,48 @@ function setup() {
 
     node_count = createInput(); //user input for number of nodes
     node_count.size(45, 15);
-    node_count.position(50, 20);
+    node_count.position(30, 20);
 
     build_tree = createButton("Build Heap"); //button to initialize heap
-    build_tree.position(50, 45);
+    build_tree.position(30, 45);
     build_tree.style('font-size: 12px; background-color: #d9e6f2');
     build_tree.mousePressed(create_tree);
 
     extract_button = createButton("Extract Max"); //button to extract max of heap
-    extract_button.position(50, 70);
+    extract_button.position(30, 70);
     extract_button.style('font-size: 12px; background-color: #d9e6f2');
-    //extract_button.mousePressed(extract_heap_max);
+    extract_button.mousePressed(extract_heap_max);
 
     heapify_button = createButton("Heapify"); //button to reorganize heap
-    heapify_button.position(50, 95);
+    heapify_button.position(30, 95);
     heapify_button.style('font-size: 12px; background-color: #d9e6f2');
     //heapify_button.mousePressed(heapify_all);
 
     heap_sort = createButton("Extract Max + Heapify"); //button to reorganize heap
-    heap_sort.position(50, 120);
+    heap_sort.position(30, 120);
     heap_sort.style('font-size: 12px; background-color: #d9e6f2');
     //heap_sort.mousePressed(extract_heapify);
 
     clear_button = createButton("Clear Tree"); //button to reset and clear tree
-    clear_button.position(50, 145);
+    clear_button.position(30, 145);
     clear_button.style('font-size: 12px; background-color: #d9e6f2');
     clear_button.mousePressed(reset_tree, true);
 
+    text('Last Extracted Max: ', 810, 10);
     noLoop(); //using redraw() to control animmation
+}
+
+function write_max(data) {
+    background(255);
+    text('Last Extracted Max: ', 810, 10);
+    text(data, 920, 10); //need to reset/draw over old text value
+}
+
+function extract_heap_max() {
+    let value = nodes.get(root);
+    write_max(value.label);
+    console.log(value.label);
+    nodes.remove(root);
 }
 
 function draw() {
