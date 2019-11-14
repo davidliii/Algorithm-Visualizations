@@ -1,4 +1,4 @@
-var options = { // visualization options
+var options = { // network visualization options
     autoResize:true,
     height:'100%',
     width:'100%',
@@ -6,7 +6,6 @@ var options = { // visualization options
 
     nodes: {
         color: {
-            background: 'rgba(184, 227, 244, 1)',
             border: 'rgba(0, 0, 0, 1)'
         },
         shape:'circle',

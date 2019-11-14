@@ -6,7 +6,7 @@ class Tree {
         this.edges = this.init_edges();
     }
 
-    generate_node_values(min, max) {
+    generate_node_values(min, max) { // create random array then heapify last non-leaf nodes
         var values = new Array(this.node_nodes);
         for (let i = 0; i < this.num_nodes; i++) {
             values[i] = Math.floor(Math.random() * max + 1) + min;
@@ -19,7 +19,7 @@ class Tree {
         return values;
     }
 
-    heapify_array(values, curr_idx) {
+    heapify_array(values, curr_idx) { // heapify the current index
         let left_idx = 2 * curr_idx + 1;
         let right_idx = 2 * curr_idx + 2;
 
@@ -41,7 +41,7 @@ class Tree {
         }
     }
 
-    init_nodes() {
+    init_nodes() { // creates list of nodes
         let nodes = [];
         for (let i = 0; i < this.num_nodes; i++) {
             nodes[i] = new Node(i, this.node_values[i].toString());
@@ -50,7 +50,7 @@ class Tree {
         return nodes;
     }
 
-    init_edges() {
+    init_edges() { // creates list of edges
         let edges = [];
 
         for (let i = 0, j = 0; i < (this.num_nodes - 1) / 2; i++) {
@@ -59,6 +59,5 @@ class Tree {
             j += 2;
         }
         return edges;
-
     }
 }
