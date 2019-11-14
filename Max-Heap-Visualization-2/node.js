@@ -3,8 +3,8 @@ class Node {
         this.id = id;
         this.label = label;
         let r = 0;
-        let g = parseInt(this.label, 10) / 1000 * 255;
-        let b = parseInt(this.label, 10) / 1000 * 255 - 10;
+        let g = parseInt(this.label, 10) / 999 * 255;
+        let b = parseInt(this.label, 10) / 999 * 255 - 10;
 
         this.color= {
             background:'rgba(0,' + g.toString() + ','+ b.toString() + ',1)'
