@@ -6,7 +6,8 @@ let network = null;
 
 let nodes = null; // node network dataset
 let edges = null; // edge network dataset
-let root = null; //use to keep track of the id of the root
+let root = null; // use to keep track of the id of the root
+let max_id = null; // keep track of node to be inserted at root for heapify
 
 function init_tree_parameters(num_nodes) { // initialize tree object
     return new Tree(num_nodes);
@@ -18,6 +19,7 @@ function create_tree() { // creates tree object and draws to canvas
         tree = init_tree_parameters(val);
     }
     update_canvas = true;
+    max_id = val - 1; //initialize max_id
     redraw();
 }
 
@@ -38,7 +40,7 @@ function create_visualization(tree) { //given tree object, builds canvas visuali
         edges: edges
     };
 
-    network = new vis.Network(container, data, options);
+    network = new vis.Network(container, data, network_options);
     root = 0;
 }
 
@@ -62,33 +64,38 @@ function setup() {
     heapify_button = createButton("Heapify"); //button to reorganize heap
     heapify_button.position(30, 95);
     heapify_button.style('font-size: 12px; background-color: #d9e6f2');
-    //heapify_button.mousePressed(heapify_all);
+    heapify_button.mousePressed(heapify_network);
 
     heap_sort = createButton("Extract Max + Heapify"); //button to reorganize heap
     heap_sort.position(30, 120);
     heap_sort.style('font-size: 12px; background-color: #d9e6f2');
     //heap_sort.mousePressed(extract_heapify);
 
-    clear_button = createButton("Clear Tree"); //button to reset and clear tree
+    clear_button = createButton("Clear Tree"); // button to reset and clear tree
     clear_button.position(30, 145);
     clear_button.style('font-size: 12px; background-color: #d9e6f2');
     clear_button.mousePressed(reset_tree, true);
 
     text('Last Extracted Max: ', 810, 10);
-    noLoop(); //using redraw() to control animmation
+    noLoop(); // using redraw() to control animmation
 }
 
 function write_max(data) {
-    background(255);
+    background(255); //clear old text
     text('Last Extracted Max: ', 810, 10);
-    text(data, 920, 10); //need to reset/draw over old text value
+    text(data, 920, 10);
 }
 
 function extract_heap_max() {
-    let value = nodes.get(root);
-    write_max(value.label);
-    console.log(value.label);
+    let value = nodes.get(root); // get value at root
+    write_max(value.label); // display
+    network.fit(animation_options); //readjust camera settings
+    //setTimeout(function() {nodes.remove(root) } , 100); //delays removal
     nodes.remove(root);
+}
+
+function heapify_network() {
+
 }
 
 function draw() {

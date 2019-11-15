@@ -1,4 +1,4 @@
-var options = { // network visualization options
+var network_options = { // network visualization options
     autoResize:true,
     height:'100%',
     width:'100%',
@@ -21,7 +21,16 @@ var options = { // network visualization options
     },
 
     physics: {
-        enabled:false
+        enabled:false,
+        hierarchicalRepulsion: {
+            nodeDistance:50,
+            centralGravity:0.01,
+            springLength:10,
+            springConstant:0.01,
+        },
+        maxVelocity:20,
+        minVelocity:0.1,
+        solver: 'hierarchicalRepulsion'
     },
 
     layout: {
@@ -41,4 +50,17 @@ var options = { // network visualization options
     configure: {
         enabled:false
     },
+};
+
+var animation_options = {
+    scale:1,
+    offset: {
+        x:0, y:0
+    },
+
+    locked:false,
+    animation: {
+        duration: 1000,
+        easingFunction: 'linear'
+    }
 };
