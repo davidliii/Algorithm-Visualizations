@@ -6,8 +6,6 @@ let network = null;
 
 let nodes = null; // node network dataset
 let edges = null; // edge network dataset
-let root = null; // use to keep track of the id of the root
-let max_id = null; // keep track of node to be inserted at root for heapify
 
 function init_tree_parameters(num_nodes) { // initialize tree object
     return new Tree(num_nodes);
@@ -19,7 +17,6 @@ function create_tree() { // creates tree object and draws to canvas
         tree = init_tree_parameters(val);
     }
     update_canvas = true;
-    max_id = val - 1; //initialize max_id
     redraw();
 }
 
@@ -41,7 +38,6 @@ function create_visualization(tree) { //given tree object, builds canvas visuali
     };
 
     network = new vis.Network(container, data, network_options);
-    root = 0;
 }
 
 function setup() {
@@ -69,7 +65,7 @@ function setup() {
     heap_sort = createButton("Extract Max + Heapify"); //button to reorganize heap
     heap_sort.position(30, 120);
     heap_sort.style('font-size: 12px; background-color: #d9e6f2');
-    //heap_sort.mousePressed(extract_heapify);
+    heap_sort.mousePressed(extract_heapify);
 
     clear_button = createButton("Clear Tree"); // button to reset and clear tree
     clear_button.position(30, 145);
@@ -87,15 +83,62 @@ function write_max(data) {
 }
 
 function extract_heap_max() {
-    let value = nodes.get(root); // get value at root
-    write_max(value.label); // display
-    network.fit(animation_options); //readjust camera settings
+    let root_id = nodes.min('id').id; // get value at root
+    write_max(nodes.get(root_id).label); // display
     //setTimeout(function() {nodes.remove(root) } , 100); //delays removal
-    nodes.remove(root);
+    network.fit(animation_options); //readjust camera settings
+    nodes.remove(root_id);
+}
+
+function extract_heapify() {
+    let extract_done = false;
+
+    extract_heap_max();
+    heapify_network();
 }
 
 function heapify_network() {
+    let node_to_move = nodes.max('id').id;
+    let new_root_value = nodes.max('id').label;
+    nodes.remove(node_to_move)
+    node = new Node(0, new_root_value);
+    network.body.data.nodes.add(node);
 
+    heapify_down(0);
+}
+
+function heapify_down(node_id) {
+    let left_id = 2 * node_id + 1;
+    let right_id = 2 * node_id + 2;
+
+    let max_id = node_id;
+
+    if (left_id < nodes.length && Number(nodes.get(left_id).label) > Number(nodes.get(max_id).label)) {
+        max_id = left_id;
+    }
+
+    if (right_id < nodes.length && Number(nodes.get(right_id).label) > Number(nodes.get(max_id).label)) {
+        max_id = right_id;
+    }
+
+    if (max_id != node_id) {
+        swap_nodes(node_id, max_id);
+        heapify_down(max_id);
+    }
+}
+
+function swap_nodes(id1, id2) {
+    let data1 = nodes.get(id1).label;
+    let data2 = nodes.get(id2).label;
+
+    nodes.remove(id2);
+    new_node2 = new Node(id2, data1);
+
+    nodes.remove(id1);
+    new_node1 = new Node(id1, data2);
+
+    nodes.add(new_node2);
+    nodes.add(new_node1);
 }
 
 function draw() {
