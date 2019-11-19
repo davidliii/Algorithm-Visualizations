@@ -92,14 +92,11 @@ function write_max(data) {
 function extract_heap_max() {
     let root_id = nodes.min('id').id; // get value at root
     write_max(nodes.get(root_id).label); // display
-    //setTimeout(function() {nodes.remove(root) } , 100); //delays removal
     network.fit(animation_options); //readjust camera settings
     nodes.remove(root_id);
 }
 
 async function extract_heapify() {
-    let extract_done = false;
-
     extract_heap_max();
     time = await sleep(500);
     heapify_network();
@@ -144,14 +141,14 @@ function swap_nodes(id1, id2) {
     let data1 = nodes.get(id1).label;
     let data2 = nodes.get(id2).label;
 
-    nodes.remove(id2);
-    new_node2 = new Node(id2, data1);
+    let color1 = nodes.get(id1).color;
+    let color2 = nodes.get(id2).color;
 
-    nodes.remove(id1);
-    new_node1 = new Node(id1, data2);
+    let font1 = nodes.get(id1).font;
+    let font2 = nodes.get(id2).font;
 
-    nodes.add(new_node2);
-    nodes.add(new_node1);
+    nodes.update({id: id1, label: data2, color: color2, font: font2});
+    nodes.update({id: id2, label: data1, color: color1, font: font1});
 }
 
 function toggle_physics() {
