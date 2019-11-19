@@ -21,9 +21,9 @@ var network_options = { // network visualization options
     },
 
     physics: {
-        enabled:true,
+        enabled:false,
         hierarchicalRepulsion: {
-            nodeDistance:50,
+            nodeDistance:35,
             centralGravity:0.01,
             springLength:10,
             springConstant:0.01,

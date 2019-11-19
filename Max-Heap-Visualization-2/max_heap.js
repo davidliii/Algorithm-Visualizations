@@ -72,6 +72,13 @@ function setup() {
     clear_button.style('font-size: 12px; background-color: #d9e6f2');
     clear_button.mousePressed(reset_tree, true);
 
+    physics_button = createButton("Toggle Physics");
+    physics_button.position(30, 170);
+    physics_button.style('font-size: 12px; background-color: #d9e6f2');
+    physics_button.mousePressed(toggle_physics);
+    physics_button.style('background-color', 'rgb(246, 69, 69)');
+
+
     text('Last Extracted Max: ', 810, 10);
     noLoop(); // using redraw() to control animmation
 }
@@ -108,6 +115,7 @@ function heapify_network() {
 }
 
 function heapify_down(node_id) {
+    let done = false;
     let left_id = 2 * node_id + 1;
     let right_id = 2 * node_id + 2;
 
@@ -139,6 +147,19 @@ function swap_nodes(id1, id2) {
 
     nodes.add(new_node2);
     nodes.add(new_node1);
+}
+
+function toggle_physics() {
+    network_options.physics.enabled = !(network_options.physics.enabled)
+    network.setOptions(network_options);
+
+    if (network_options.physics.enabled) {
+        physics_button.style('background-color', 'rgb(87, 239, 87)');
+    }
+
+    else {
+        physics_button.style('background-color', 'rgb(246, 69, 69)');
+    }
 }
 
 function draw() {
