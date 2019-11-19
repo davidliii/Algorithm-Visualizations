@@ -97,24 +97,27 @@ function extract_heap_max() {
     nodes.remove(root_id);
 }
 
-function extract_heapify() {
+async function extract_heapify() {
     let extract_done = false;
 
     extract_heap_max();
+    time = await sleep(500);
     heapify_network();
 }
 
-function heapify_network() {
+async function heapify_network() {
     let node_to_move = nodes.max('id').id;
     let new_root_value = nodes.max('id').label;
     nodes.remove(node_to_move)
     node = new Node(0, new_root_value);
     network.body.data.nodes.add(node);
 
+    time = await sleep(500);
     heapify_down(0);
+    //setTimeout(heapify_down, 200, 0);
 }
 
-function heapify_down(node_id) {
+async function heapify_down(node_id) {
     let done = false;
     let left_id = 2 * node_id + 1;
     let right_id = 2 * node_id + 2;
@@ -131,7 +134,9 @@ function heapify_down(node_id) {
 
     if (max_id != node_id) {
         swap_nodes(node_id, max_id);
+        let time = await sleep(500);
         heapify_down(max_id);
+        time = await sleep(500);
     }
 }
 
@@ -169,4 +174,12 @@ function draw() {
         }
         update_canvas = false;
     }
+}
+
+function sleep(time) {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve(time);
+        }, time);
+    });
 }
