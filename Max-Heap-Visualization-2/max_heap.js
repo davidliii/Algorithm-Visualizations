@@ -89,7 +89,8 @@ function write_max(data) {
     text(data, 920, 10);
 }
 
-function extract_heap_max() {
+async function extract_heap_max() {
+    await sleep(500);
     let root_id = nodes.min('id').id; // get value at root
     write_max(nodes.get(root_id).label); // display
     network.fit(animation_options); //readjust camera settings
@@ -98,7 +99,7 @@ function extract_heap_max() {
 
 async function extract_heapify() {
     extract_heap_max();
-    time = await sleep(500);
+    await sleep(500);
     heapify_network();
 }
 
@@ -109,12 +110,11 @@ async function heapify_network() {
     node = new Node(0, new_root_value);
     network.body.data.nodes.add(node);
 
-    time = await sleep(500);
     heapify_down(0);
-    //setTimeout(heapify_down, 200, 0);
 }
 
 async function heapify_down(node_id) {
+
     let done = false;
     let left_id = 2 * node_id + 1;
     let right_id = 2 * node_id + 2;
@@ -131,9 +131,9 @@ async function heapify_down(node_id) {
 
     if (max_id != node_id) {
         swap_nodes(node_id, max_id);
-        let time = await sleep(500);
+        await sleep(500);
         heapify_down(max_id);
-        time = await sleep(500);
+        await sleep(500);
     }
 }
 

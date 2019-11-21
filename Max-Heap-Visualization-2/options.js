@@ -11,7 +11,7 @@ var network_options = { // network visualization options
         shape:'circle',
         font: {
             align:'center'
-        }
+        },
     },
 
     edges: {
