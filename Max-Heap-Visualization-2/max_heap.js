@@ -7,6 +7,8 @@ let network = null;
 let nodes = null; // node network dataset
 let edges = null; // edge network dataset
 
+let animationTime = 500;
+
 function init_tree_parameters(num_nodes) { // initialize tree object
     return new Tree(num_nodes);
 }
@@ -90,16 +92,16 @@ function write_max(data) {
 }
 
 async function extract_heap_max() {
-    await sleep(500);
     let root_id = nodes.min('id').id; // get value at root
     write_max(nodes.get(root_id).label); // display
     network.fit(animation_options); //readjust camera settings
     nodes.remove(root_id);
+    await sleep(animationTime);
 }
 
 async function extract_heapify() {
     extract_heap_max();
-    await sleep(500);
+    await sleep(animationTime);
     heapify_network();
 }
 
@@ -114,7 +116,6 @@ async function heapify_network() {
 }
 
 async function heapify_down(node_id) {
-
     let done = false;
     let left_id = 2 * node_id + 1;
     let right_id = 2 * node_id + 2;
@@ -130,10 +131,9 @@ async function heapify_down(node_id) {
     }
 
     if (max_id != node_id) {
+        await sleep(animationTime);
         swap_nodes(node_id, max_id);
-        await sleep(500);
         heapify_down(max_id);
-        await sleep(500);
     }
 }
 
