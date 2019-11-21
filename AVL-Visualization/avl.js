@@ -46,17 +46,27 @@ function setup() {
     noLoop(); // using redraw() to control animmation
 }
 
-function draw() {
-    if (update_canvas) {
-        if (tree != null) {
-            create_visualization(tree);
-        }
-        update_canvas = false;
-    }
+function create_visualization(tree) {
+    nodes = new vis.DataSet(tree.nodes);
+    edges = new vis.DataSet(tree.edges);
+
+    let container = document.getElementById('mynetwork');
+
+    let data = {
+        nodes: nodes,
+        edges: edges
+    };
+
+    network = new vis.Network(container, data, network_options);
 }
 
 function create_tree() {
-
+    let val = Number(node_count.value());
+    if (!isNaN(val)) {
+        tree = new Tree(val);
+        update_canvas = true;
+        redraw();
+    }
 }
 
 function delete_node() {
@@ -75,6 +85,11 @@ function reset_tree() {
 
 }
 
-function create_visualization(tree) {
-
+function draw() {
+    if (update_canvas) {
+        if (tree != null) {
+            create_visualization(tree);
+        }
+        update_canvas = false;
+    }
 }
