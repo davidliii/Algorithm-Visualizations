@@ -3,6 +3,6 @@ Max Heap Visualization rendered html: https://davidliii.github.io/Algorithm-Visu
 
 Max Heap Visualization rendered html version 2: https://davidliii.github.io/Algorithm-Visualizations/Max-Heap-Visualization-2/
 
-AVL Tree Visualization rendered html: In Progress
+AVL Tree Visualization rendered html: https://davidliii.github.io/Algorithm-Visualizations/AVL-Visualization/
 
 Dijkstra's Algorithm rendered html: In Progress
