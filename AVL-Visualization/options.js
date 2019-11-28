@@ -6,8 +6,9 @@ var network_options = { // network visualization options
 
     nodes: {
         color: {
-            border: 'rgba(0, 0, 0, 1)'
+            border: 'black',
         },
+        borderWidth: 1,
         shape:'circle',
         font: {
             align:'center'
@@ -23,12 +24,12 @@ var network_options = { // network visualization options
     physics: {
         enabled:false,
         hierarchicalRepulsion: {
-            nodeDistance:35,
-            centralGravity:0.01,
+            nodeDistance:70,
+            centralGravity:0.15,
             springLength:10,
             springConstant:0.01,
         },
-        maxVelocity:20,
+        maxVelocity:10,
         minVelocity:0.1,
         solver: 'hierarchicalRepulsion',
     },

@@ -8,7 +8,7 @@ class Tree { //use for network representation
         this.bst_root = this.array_to_bst(this.node_values, 0, this.node_values.length - 1);
         //calculate balance factor
         for (let i = 0; i < this.nodes.length; i++) {
-            this.nodes[i].balance = this.calculate_balance(this.nodes[i]);
+            this.nodes[i].balance = this.nodes[i].calculate_balance();
             this.nodes[i].set_color();
         }
     }
@@ -29,18 +29,20 @@ class Tree { //use for network representation
 
         let mid  = Math.floor((start + end) / 2);
         let root = new Node(mid, values[mid].toString());
-        root.right = this.array_to_bst(values, start, mid - 1);
-        root.left = this.array_to_bst(values, mid + 1, end);
+        root.right = this.array_to_bst(values, mid + 1, end);
+        root.left = this.array_to_bst(values, start, mid - 1);
         this.nodes.push(root);
+
+        if (root.left != null) {
+            let edge2 = new Edge(root.id, root.left.id);
+            this.edges.push(edge2);
+
+        }
         if (root.right != null) {
             let edge1 = new Edge(root.id, root.right.id);
             this.edges.push(edge1);
         }
 
-        if (root.left != null) {
-            let edge2 = new Edge(root.id, root.left.id);
-            this.edges.push(edge2);
-        }
         return root;
     }
 

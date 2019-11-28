@@ -7,6 +7,10 @@ let network = null;
 let nodes = null; // node network dataset
 let edges = null; // edge network dataset
 
+let animationTime = 500;
+
+let search_found = false;
+
 function setup() {
     canvas = createCanvas(width, height);
 
@@ -29,6 +33,10 @@ function setup() {
     insert_button.style('font-size: 12px; background-color: #d9e6f2');
     insert_button.mousePressed(insert_node);
 
+    insert_input = createInput();
+    insert_input.size(32, 13);
+    insert_input.position(120, 96);
+
     search_button = createButton("Search for Key"); //button to reorganize heap
     search_button.position(30, 120);
     search_button.style('font-size: 12px; background-color: #d9e6f2');
@@ -48,6 +56,20 @@ function setup() {
     physics_button.style('font-size: 12px; background-color: #d9e6f2');
     physics_button.mousePressed(toggle_physics);
     physics_button.style('background-color', 'rgb(246, 69, 69)');
+
+    fill(0);
+    text("Balance = 0", 810, 10);
+    text("Balance >= 1", 810, 30);
+    text("Balance <= -1", 810, 50);
+
+    fill(255);
+    rect(890, 1, 10, 10);
+
+    fill(186, 213, 255);
+    rect(890, 21, 10, 10);
+
+    fill(186, 255, 209);
+    rect(890, 41, 10, 10);
 
     noLoop(); // using redraw() to control animmation
 }
@@ -76,31 +98,76 @@ function create_tree() {
 }
 
 function delete_node() {
+    if (network.getSelectedNodes().length == 0) {
+        return;
+    }
     let selected_id = network.getSelectedNodes()[0];
-
     let selected_edges = network.getConnectedEdges(selected_id);
     console.log(selected_edges);
 
     let selected_node = nodes.get(selected_id);
-    network.deleteSelected();
-    insert_null_node(selected_id);
+    nodes.remove(selected_node);
+    insert_null_node(selected_id); //place holder
 }
 
 function insert_null_node(node_id) {
     node = new Node(node_id, "");
-    network.body.data.nodes.add(node);
+    nodes.add(node);
 }
 
 function insert_node() {
 
 }
 
-function search_key() {
+async function search_key() {
+    let key = Number(key_input.value());
+    search_found = false;
+    await bst_search(tree.bst_root, key);
+    console.log(search_found);
+}
 
+async function bst_search(node, key) {
+    if (node == null) {
+        search_found = false;
+        return;
+    }
+
+    highlight_border(nodes.get(node.id), "rgb(245, 77, 51)");
+    await sleep(animationTime);
+    reset_border(nodes.get(node.id));
+
+    if (key == Number(node.label)) {
+        search_found = true;
+        network.selectNodes([node.id], [false])
+        reset_border(nodes.get(node.id));
+        return;
+    }
+
+    else if (key > Number(node.label)) {
+        return bst_search(node.right, key);
+    }
+
+    else {
+        return bst_search(node.left, key);
+    }
+}
+
+function highlight_border(node, color) {
+    node.borderWidth = 3;
+    node.color = {border: color};
+    nodes.update(node);
+}
+
+function reset_border(node) {
+    node.borderWidth = 1;
+    node.color = {border: "black"};
+    nodes.update(node);
 }
 
 function reset_tree() {
-
+    tree = null
+    network.destroy();
+    network = null;
 }
 
 function toggle_physics() {
@@ -116,7 +183,6 @@ function toggle_physics() {
     }
 }
 
-
 function draw() {
     if (update_canvas) {
         if (tree != null) {
@@ -124,4 +190,12 @@ function draw() {
         }
         update_canvas = false;
     }
+}
+
+function sleep(time) {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve(time);
+        }, time);
+    });
 }
