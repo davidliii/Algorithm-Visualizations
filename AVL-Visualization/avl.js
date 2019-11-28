@@ -43,6 +43,12 @@ function setup() {
     clear_button.style('font-size: 12px; background-color: #d9e6f2');
     clear_button.mousePressed(reset_tree, true);
 
+    physics_button = createButton("Toggle Physics");
+    physics_button.position(30, 170);
+    physics_button.style('font-size: 12px; background-color: #d9e6f2');
+    physics_button.mousePressed(toggle_physics);
+    physics_button.style('background-color', 'rgb(246, 69, 69)');
+
     noLoop(); // using redraw() to control animmation
 }
 
@@ -70,7 +76,19 @@ function create_tree() {
 }
 
 function delete_node() {
+    let selected_id = network.getSelectedNodes()[0];
 
+    let selected_edges = network.getConnectedEdges(selected_id);
+    console.log(selected_edges);
+
+    let selected_node = nodes.get(selected_id);
+    network.deleteSelected();
+    insert_null_node(selected_id);
+}
+
+function insert_null_node(node_id) {
+    node = new Node(node_id, "");
+    network.body.data.nodes.add(node);
 }
 
 function insert_node() {
@@ -84,6 +102,20 @@ function search_key() {
 function reset_tree() {
 
 }
+
+function toggle_physics() {
+    network_options.physics.enabled = !(network_options.physics.enabled)
+    network.setOptions(network_options);
+
+    if (network_options.physics.enabled) {
+        physics_button.style('background-color', 'rgb(87, 239, 87)');
+    }
+
+    else {
+        physics_button.style('background-color', 'rgb(246, 69, 69)');
+    }
+}
+
 
 function draw() {
     if (update_canvas) {

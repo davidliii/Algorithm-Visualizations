@@ -24,7 +24,7 @@ class Tree { //use for network representation
 
     array_to_bst(values, start, end) {
         if (start > end) {
-            return;
+            return null;
         }
 
         let mid  = Math.floor((start + end) / 2);

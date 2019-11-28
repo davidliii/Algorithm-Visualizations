@@ -30,7 +30,7 @@ var network_options = { // network visualization options
         },
         maxVelocity:20,
         minVelocity:0.1,
-        solver: 'hierarchicalRepulsion'
+        solver: 'hierarchicalRepulsion',
     },
 
     layout: {
