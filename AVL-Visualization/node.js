@@ -10,16 +10,24 @@ class Node {
     }
 
     set_color() {
-        if (this.balance >= 1) {
-            this.color = {background: "rgb(186, 213, 255)"}; //blue
+        if (this.balance == 1) {
+            this.color = {background: "rgb(186, 213, 255)"}; //light blue
         }
 
         if (this.balance == 0) {
             this.color = {background: "rgb(255, 255, 255)"}; //white
         }
 
-        if (this.balance <= -1) {
-            this.color = {background: "rgb(186, 255, 209)"}; //green
+        if (this.balance == -1) {
+            this.color = {background: "rgb(186, 255, 209)"}; //light green
+        }
+
+        if (this.balance > 1) {
+            this.color = {background: "rgb(42, 80, 176)"}; //dark blue
+        }
+
+        if (this.balance < -1) {
+            this.color = {background: "rgb(34, 186, 59)"}; //dark green
         }
     }
 

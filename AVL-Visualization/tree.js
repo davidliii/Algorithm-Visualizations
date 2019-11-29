@@ -48,8 +48,4 @@ class Tree { //use for network representation
 
         return root;
     }
-
-    calculate_balance(node) {
-
-    }
 }

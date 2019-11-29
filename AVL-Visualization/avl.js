@@ -12,6 +12,7 @@ let node_id_tracker = 0;
 
 let search_found = false;
 let insert_loc_found = false;
+let network_root = null;
 
 function setup() {
     canvas = createCanvas(width, height);
@@ -61,8 +62,11 @@ function setup() {
 
     fill(0);
     text("Balance = 0", 810, 10);
-    text("Balance >= 1", 810, 30);
-    text("Balance <= -1", 810, 50);
+    text("Balance = 1", 810, 30);
+    text("Balance = -1", 810, 50);
+
+    text("Balance > 1", 810, 100);
+    text("Balance < -1", 810, 120);
 
     fill(255);
     rect(890, 1, 10, 10);
@@ -72,6 +76,12 @@ function setup() {
 
     fill(186, 255, 209);
     rect(890, 41, 10, 10);
+
+    fill(42, 80, 176);
+    rect(890, 91, 10, 10);
+
+    fill(34, 186, 59);
+    rect(890, 111, 10, 10);
 
     noLoop(); // using redraw() to control animmation
 }
@@ -88,6 +98,7 @@ function create_visualization(tree) {
 
     network = new vis.Network(container, data, network_options);
     network.storePositions();
+    network_root = tree.bst_root;
 }
 
 function create_tree() {
@@ -117,15 +128,28 @@ function delete_node() { // so far only hides node TODO: finish
     network.selectNodes([],[]);
 }
 
-function insert_node() {
+function set_tree_balance(root) {
+    if (root != null) {
+        root.balance = root.calculate_balance();
+        root.set_color();
+        nodes.update(root);
+        set_tree_balance(root.left);
+        set_tree_balance(root.right);
+    }
+}
+
+async function insert_node() {
     let insert_key = Number(insert_input.value());
     if (tree.node_values.indexOf(insert_key) > -1) {
         return;
     }
     else {
-        insert(tree.bst_root, insert_key);
+        await insert(network_root, insert_key);
         tree.node_values.push(insert_key);
+        //TODO: need to recalculate balances of all nodes here
+        set_tree_balance(network_root);
     }
+
 }
 
 async function insert(node, key) {
@@ -140,11 +164,11 @@ async function insert(node, key) {
         reset_border(nodes.get(node.id));
 
         if (key > Number(node.label)) {
-            insert(node.right, key);
+            await insert(node.right, key);
         }
 
         else {
-            insert(node.left, key);
+            await insert(node.left, key);
         }
     }
     //insert code
@@ -198,11 +222,6 @@ async function insert(node, key) {
         }
         insert_loc_found = false;
         node_id_tracker++;
-        //TODO: need to recalculate balances here: //not working, nodes and tree.nodes need updating
-        for (let i = 0; i < tree.nodes.length; i++) {
-            tree.nodes[i].balance = tree.nodes[i].calculate_balance();
-            tree.nodes[i].set_color();
-        }
     }
 }
 
