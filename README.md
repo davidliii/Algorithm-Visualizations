@@ -1,5 +1,5 @@
 # Algorithm-Visualizations
-~Max Heap Visualization rendered html: https://davidliii.github.io/Algorithm-Visualizations/Max-Heap-Visualization/~
+~Max Heap Visualization: https://davidliii.github.io/Algorithm-Visualizations/Max-Heap-Visualization/~
 
 Max Heap Visualization (v2): https://davidliii.github.io/Algorithm-Visualizations/Max-Heap-Visualization-2/
 
