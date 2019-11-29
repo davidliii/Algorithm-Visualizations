@@ -60,6 +60,11 @@ function setup() {
     physics_button.mousePressed(toggle_physics);
     physics_button.style('background-color', 'rgb(246, 69, 69)');
 
+    info_button = createButton("Get selected info");
+    info_button.position(30, 195);
+    info_button.style('font-size: 12px; background-color: #d9e6f2');
+    info_button.mousePressed(get_info);
+
     fill(0);
     text("Balance = 0", 810, 10);
     text("Balance = 1", 810, 30);
@@ -70,16 +75,12 @@ function setup() {
 
     fill(255);
     rect(890, 1, 10, 10);
-
     fill(186, 213, 255);
     rect(890, 21, 10, 10);
-
     fill(186, 255, 209);
     rect(890, 41, 10, 10);
-
     fill(42, 80, 176);
     rect(890, 91, 10, 10);
-
     fill(34, 186, 59);
     rect(890, 111, 10, 10);
 
@@ -111,20 +112,39 @@ function create_tree() {
     }
 }
 
-function delete_node() { // so far only hides node TODO: finish
+function delete_node() { //TODO REDO THIS
     if (network.getSelectedNodes().length == 0) {
         return;
     }
+
     let selected_id = network.getSelectedNodes()[0];
     let selected_node = nodes.get(selected_id);
 
-    selected_node.label = "";
-    selected_node.color = {
-        border: "white",
-        background: "white"
-    };
+    if (selected_node.left == null && selected_node.right == null) { //leaf node, just remove
+        //need to set pointers of parent node
+        let parent_id = network.getConnectedNodes(selected_id)[0]; //parent of to be deleted node
+        let parent = nodes.get(parent_id);
 
-    nodes.update(selected_node);
+        if (Number(parent.label) > Number(selected_node.label)) { //is left child
+            nodes.update({id: parent_id, left: null});
+        }
+
+        if (Number(parent.label) < Number(selected_node.label)) { //is right child
+            nodes.update({id: parent_id, right: null});
+        }
+        nodes.remove(selected_id);
+        //TODO: bug, after inserting, the removed node appears again
+    }
+
+    else { //TODO finish, so far only makes node hidden
+        selected_node.label = "";
+        selected_node.color = {
+            border: "white",
+            background: "white"
+        };
+        nodes.update(selected_node);
+    }
+
     network.selectNodes([],[]);
 }
 
@@ -138,7 +158,7 @@ function set_tree_balance(root) {
     }
 }
 
-async function insert_node() {
+async function insert_node() { //TODO redo
     let insert_key = Number(insert_input.value());
     if (tree.node_values.indexOf(insert_key) > -1) {
         return;
@@ -149,10 +169,10 @@ async function insert_node() {
         //TODO: need to recalculate balances of all nodes here
         set_tree_balance(network_root);
     }
-
+    network.fit();
 }
 
-async function insert(node, key) {
+async function insert(node, key) { //TODO redo
     if (node == null) {
         insert_loc_found = true;
         return;
@@ -174,11 +194,10 @@ async function insert(node, key) {
     //insert code
     if (insert_loc_found == true) {
         let bound;
-
         new_node = new Node(node_id_tracker, key.toString());
-        tree.nodes.push(new_node);
+        //tree.nodes.push(new_node);
         new_edge = new Edge(node.id, new_node.id);
-        tree.edges.push(new_edge);
+        //tree.edges.push(new_edge);
 
         if (key > Number(node.label)) {
             bound = "r";
@@ -305,4 +324,11 @@ function sleep(time) {
             resolve(time);
         }, time);
     });
+}
+
+function get_info() {
+    let selected_id = network.getSelectedNodes()[0];
+    let selected_node = nodes.get(selected_id);
+
+    console.log(selected_node);
 }

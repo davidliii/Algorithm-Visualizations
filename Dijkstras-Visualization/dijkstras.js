@@ -66,6 +66,10 @@ function create_visualization(graph) {
     };
 
     network = new vis.Network(container, data, network_options);
+
+    let src = null;
+    let dest = null;
+
 }
 
 function create_graph() {
