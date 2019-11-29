@@ -6,7 +6,8 @@ var network_options = { // network visualization options
 
     nodes: {
         color: {
-            border: 'rgba(0, 0, 0, 1)'
+            border: 'rgba(0, 0, 0, 1)',
+            background: 'rgba(235, 107, 56, 1)'
         },
         shape:'circle',
         font: {

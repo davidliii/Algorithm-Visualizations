@@ -150,9 +150,12 @@ async function insert(node, key) {
     //insert code
     if (insert_loc_found == true) {
         let bound;
-        console.log("found");
+
         new_node = new Node(node_id_tracker, key.toString());
+        tree.nodes.push(new_node);
         new_edge = new Edge(node.id, new_node.id);
+        tree.edges.push(new_edge);
+
         if (key > Number(node.label)) {
             bound = "r";
             node.right = new_node;
@@ -195,7 +198,11 @@ async function insert(node, key) {
         }
         insert_loc_found = false;
         node_id_tracker++;
-        //TODO: need to recalculate balances here:
+        //TODO: need to recalculate balances here: //not working, nodes and tree.nodes need updating
+        for (let i = 0; i < tree.nodes.length; i++) {
+            tree.nodes[i].balance = tree.nodes[i].calculate_balance();
+            tree.nodes[i].set_color();
+        }
     }
 }
 
