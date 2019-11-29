@@ -5,4 +5,4 @@ Max Heap Visualization rendered html version 2: https://davidliii.github.io/Algo
 
 AVL Tree Visualization rendered html: https://davidliii.github.io/Algorithm-Visualizations/AVL-Visualization/
 
-Dijkstra's Algorithm rendered html: In Progress
+Dijkstra's Algorithm rendered html: https://davidliii.github.io/Algorithm-Visualizations/Dijkstras-Visualization/
