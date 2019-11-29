@@ -8,8 +8,10 @@ let nodes = null; // node network dataset
 let edges = null; // edge network dataset
 
 let animationTime = 500;
+let node_id_tracker = 0;
 
 let search_found = false;
+let insert_loc_found = false;
 
 function setup() {
     canvas = createCanvas(width, height);
@@ -79,13 +81,13 @@ function create_visualization(tree) {
     edges = new vis.DataSet(tree.edges);
 
     let container = document.getElementById('mynetwork');
-
     let data = {
         nodes: nodes,
         edges: edges
     };
 
     network = new vis.Network(container, data, network_options);
+    network.storePositions();
 }
 
 function create_tree() {
@@ -93,33 +95,112 @@ function create_tree() {
     if (!isNaN(val)) {
         tree = new Tree(val);
         update_canvas = true;
+        node_id_tracker = val + 100; //use to make new unique nodes for insertion
         redraw();
     }
 }
 
-function delete_node() {
+function delete_node() { // so far only hides node TODO: finish
     if (network.getSelectedNodes().length == 0) {
         return;
     }
     let selected_id = network.getSelectedNodes()[0];
-    let selected_edges = network.getConnectedEdges(selected_id);
-    console.log(selected_edges);
-
     let selected_node = nodes.get(selected_id);
-    nodes.remove(selected_node);
-    insert_null_node(selected_id); //place holder
-}
 
-function insert_null_node(node_id) {
-    node = new Node(node_id, "");
-    nodes.add(node);
+    selected_node.label = "";
+    selected_node.color = {
+        border: "white",
+        background: "white"
+    };
+
+    nodes.update(selected_node);
+    network.selectNodes([],[]);
 }
 
 function insert_node() {
+    let insert_key = Number(insert_input.value());
+    if (tree.node_values.indexOf(insert_key) > -1) {
+        return;
+    }
+    else {
+        insert(tree.bst_root, insert_key);
+        tree.node_values.push(insert_key);
+    }
+}
 
+async function insert(node, key) {
+    if (node == null) {
+        insert_loc_found = true;
+        return;
+    }
+
+    else {
+        highlight_border(nodes.get(node.id), "rgb(242, 56, 255)");
+        await sleep(animationTime);
+        reset_border(nodes.get(node.id));
+
+        if (key > Number(node.label)) {
+            insert(node.right, key);
+        }
+
+        else {
+            insert(node.left, key);
+        }
+    }
+    //insert code
+    if (insert_loc_found == true) {
+        let bound;
+        console.log("found");
+        new_node = new Node(node_id_tracker, key.toString());
+        new_edge = new Edge(node.id, new_node.id);
+        if (key > Number(node.label)) {
+            bound = "r";
+            node.right = new_node;
+        }
+        else {
+            bound = "l";
+            node.left = new_node;
+        }
+        nodes.add(new_node);
+        edges.add(new_edge);
+
+        if (node.left != null && node.right != null) {
+            let pos_node = network.getPositions([node.id])[node.id].x;
+            let pos_new_node = network.getPositions([new_node.id])[new_node.id].x;
+
+            if (bound == "r") { //if new node is on right
+                if (pos_node > pos_new_node ) {//if its position is on left
+                    let temp_data = node.left.label;
+                    node.left.label = node.right.label;
+                    node.right.label = temp_data;
+
+                    let temp_node = node.left;
+                    node.left = node.right;
+                    node.right = temp_node;
+                }
+            }
+            else {
+                if (pos_node < pos_new_node) {
+                    let temp_data = node.left.label;
+                    node.left.label = node.right.label;
+                    node.right.label = temp_data;
+
+                    let temp_node = node.left;
+                    node.left = node.right;
+                    node.right = temp_node;
+                }
+            }
+            nodes.update(node.right);
+            nodes.update(node.left);
+        }
+        insert_loc_found = false;
+        node_id_tracker++;
+        //TODO: need to recalculate balances here:
+    }
 }
 
 async function search_key() {
+    network.selectNodes([],[]);
     let key = Number(key_input.value());
     search_found = false;
     await bst_search(tree.bst_root, key);

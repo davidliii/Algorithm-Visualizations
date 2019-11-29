@@ -14,9 +14,12 @@ class Tree { //use for network representation
     }
 
     generate_node_values(min, max) {
-        var values = new Array(this.num_nodes);
-        for (let i = 0; i < this.num_nodes; i++) {
-            values[i] = Math.floor(Math.random() * max + 1) + min;
+        let values = new Array(0);
+        while (values.length < this.num_nodes) {
+            let element = Math.floor(Math.random() * max + 1) + min;
+            if (values.indexOf(element) === -1) { //ensures no duplicates
+                values.push(element);
+            }
         }
         values.sort(function(a, b) {return a-b});
         return values;
