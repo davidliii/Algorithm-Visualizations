@@ -83,7 +83,7 @@ function select_src() {
         if (src != null) {
             reset_color(src);
         }
-        set_color(src_id, "rgb(145, 255, 128)");
+        set_color(src_id, "rgb(232, 118, 19)");
         src = src_id;
     }
 }
