@@ -24,12 +24,17 @@ class Graph {
 
         for (let i = 0; i < this.nodes.length; i++) { //create edges
             let from = i;
+            let to_list = Array(0);
 
             for (let j = 0; j < this.max_edges; j++) {
                 let to = Math.floor(Math.random() * (this.num_nodes - from)) + from + 1;
-                if (to < this.nodes.length) {
-                    let edge = new Edge(from, to);
-                    this.edges.push(edge);
+                if (!to_list.includes(to)) {
+                    if (to < this.nodes.length) {
+                        to_list.push(to);
+                        let weight = Math.floor(Math.random() * (20 - 1)) + 1;
+                        let edge = new Edge(from, to, weight);
+                        this.edges.push(edge);
+                    }
                 }
             }
         }

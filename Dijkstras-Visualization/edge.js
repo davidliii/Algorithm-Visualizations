@@ -3,5 +3,6 @@ class Edge {
         this.from = from;
         this.to = to;
         this.weight = weight;
+        this.color = null;
     }
 }

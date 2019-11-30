@@ -99,7 +99,8 @@ function create_visualization(tree) {
 
     network = new vis.Network(container, data, network_options);
     network.storePositions();
-    network_root = tree.bst_root;
+    network_root_id = tree.bst_root.id;
+    network_root = nodes.get(tree.bst_root.id);
 }
 
 function create_tree() {
@@ -112,7 +113,7 @@ function create_tree() {
     }
 }
 
-function delete_node() { //TODO REDO THIS
+function delete_node() {
     if (network.getSelectedNodes().length == 0) {
         return;
     }
@@ -121,7 +122,6 @@ function delete_node() { //TODO REDO THIS
     let selected_node = nodes.get(selected_id);
 
     if (selected_node.left == null && selected_node.right == null) { //leaf node, just remove
-        //need to set pointers of parent node
         let parent_id = network.getConnectedNodes(selected_id)[0]; //parent of to be deleted node
         let parent = nodes.get(parent_id);
 
@@ -133,7 +133,6 @@ function delete_node() { //TODO REDO THIS
             nodes.update({id: parent_id, right: null});
         }
         nodes.remove(selected_id);
-        //TODO: bug, after inserting, the removed node appears again
     }
 
     else { //TODO finish, so far only makes node hidden
@@ -146,16 +145,62 @@ function delete_node() { //TODO REDO THIS
     }
 
     network.selectNodes([],[]);
+    set_tree_balance(network_root);
 }
 
-function set_tree_balance(root) {
+function set_tree_balance(root) { //not working null id when passed
     if (root != null) {
-        root.balance = root.calculate_balance();
-        root.set_color();
+        root.balance = calculate_balance(root);
+        set_color(root);
         nodes.update(root);
-        set_tree_balance(root.left);
-        set_tree_balance(root.right);
+        set_tree_balance(nodes.get(root.left.id));
+        set_tree_balance(nodes.get(root.right.id));
     }
+}
+
+function calculate_balance(root) {
+    let left_h = calculate_height(nodes.get(root.left.id));
+    let right_h = calculate_height(nodes.get(root.right.id));
+
+    return left_h - right_h;
+}
+
+function calculate_height(root) {
+    if (root == null) {
+        return 0;
+    }
+
+    else {
+        let left_h = calculate_height(nodes.get(root.left.id));
+        let right_h = calculate_height(nodes.get(root.right.id));
+
+        let max_h = max(left_h, right_h);
+        return (max_h + 1);
+    }
+}
+
+function set_color(node) {
+    if (node.balance == 1) {
+        node.color = {background: "rgb(186, 213, 255)"}; //light blue
+    }
+
+    if (node.balance == 0) {
+        node.color = {background: "rgb(255, 255, 255)"}; //white
+    }
+
+    if (node.balance == -1) {
+        node.color = {background: "rgb(186, 255, 209)"}; //light green
+    }
+
+    if (node.balance > 1) {
+        node.color = {background: "rgb(42, 80, 176)"}; //dark blue
+    }
+
+    if (node.balance < -1) {
+        node.color = {background: "rgb(34, 186, 59)"}; //dark green
+    }
+
+    nodes.update(node);
 }
 
 async function insert_node() { //TODO redo
@@ -166,7 +211,6 @@ async function insert_node() { //TODO redo
     else {
         await insert(network_root, insert_key);
         tree.node_values.push(insert_key);
-        //TODO: need to recalculate balances of all nodes here
         set_tree_balance(network_root);
     }
     network.fit();
@@ -195,9 +239,7 @@ async function insert(node, key) { //TODO redo
     if (insert_loc_found == true) {
         let bound;
         new_node = new Node(node_id_tracker, key.toString());
-        //tree.nodes.push(new_node);
         new_edge = new Edge(node.id, new_node.id);
-        //tree.edges.push(new_edge);
 
         if (key > Number(node.label)) {
             bound = "r";
@@ -294,6 +336,8 @@ function reset_tree() {
     tree = null
     network.destroy();
     network = null;
+    network_root_id = null;
+    network_root = null;
 }
 
 function toggle_physics() {
