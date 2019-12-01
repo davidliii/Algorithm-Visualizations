@@ -107,13 +107,13 @@ function create_tree() {
         update_canvas = true;
 
         nodes = new vis.DataSet([
-            {id:0, label: 'a', left_id: 1, right_id: 2},
-            {id:1, label: 'b', left_id: 3, right_id: 4},
-            {id:2, label: 'c', left_id: 5, right_id: 6},
-            {id:3, label: 'd', left_id: null, right_id: null},
-            {id:4, label: 'e', left_id: null, right_id: null},
-            {id:5, label: 'f', left_id: null, right_id: null},
-            {id:6, label: 'g', left_id: null, right_id: null},
+            {id:0, label: '0', left_id: 1, right_id: 2},
+            {id:1, label: '1', left_id: 3, right_id: 4},
+            {id:2, label: '2', left_id: 5, right_id: 6},
+            {id:3, label: '3', left_id: null, right_id: null},
+            {id:4, label: '4', left_id: null, right_id: null},
+            {id:5, label: '5', left_id: null, right_id: null},
+            {id:6, label: '6', left_id: null, right_id: null},
         ]);
 
         edges = new vis.DataSet([
@@ -150,10 +150,14 @@ function ccw_balance(root) {
 
     //find edge from root to left child
     let root_edge = null;
+    let parent_edge = null;
     for (let i = 0; i < root_edges.length; i++) {
         let edge = edges.get(root_edges[i]);
         if (edge.to == root.right_id) {
             root_edge = edge;
+        }
+        if (edge.to == root.id) {
+            parent_edge = edge; //find parent edge is applicable
         }
     }
     //find edge from left child to left child's right child
@@ -171,8 +175,27 @@ function ccw_balance(root) {
 
     edges.update(root_edge); //update the dataset
     edges.update(right_edge);
+    if (parent_edge != null) {
+        parent_edge.to = root.right_id;
+        edges.update(parent_edge);
+        let parent = nodes.get(parent_edge.from);
+        //check to see if it is parents left or right
+        if (parent.right_id == root.id) {
+            parent.right_id = root.right_id;
+        }
 
-    //also need to update parent if necesarry
+        else {
+            parent.left_id = root.right_id;
+        }
+
+        nodes.update(parent);
+    }
+    let right_node = nodes.get(root.right_id);
+    root.right_id = nodes.get(root.right_id).left_id;
+    right_node.left_id = root.id;
+
+    nodes.update(root);
+    nodes.update(right_node);
 }
 
 function cw_balance(root) { //root from dataset
@@ -185,10 +208,14 @@ function cw_balance(root) { //root from dataset
 
     //find edge from root to left child
     let root_edge = null;
+    let parent_edge = null;
     for (let i = 0; i < root_edges.length; i++) {
         let edge = edges.get(root_edges[i]);
         if (edge.to == root.left_id) {
             root_edge = edge;
+        }
+        if (edge.to == root.id) {
+            parent_edge = edge; //find parent edge is applicable
         }
     }
     //find edge from left child to left child's right child
@@ -206,8 +233,29 @@ function cw_balance(root) { //root from dataset
 
     edges.update(root_edge); //update the dataset
     edges.update(left_edge);
+    if (parent_edge != null) {
+        parent_edge.to = root.left_id;
+        edges.update(parent_edge);
+        let parent = nodes.get(parent_edge.from);
+        parent.left_id = root.left_id;
+        //check to see if it is parents left or right
+        if (parent.right_id == root.id) {
+            parent.right_id = root.left_id;
+        }
 
-    //also need to update parent if necesarry
+        else {
+            parent.left_id = root.left_id;
+        }
+        nodes.update(parent);
+    }
+
+    //need to update node left and right ids
+    let left_node = nodes.get(root.left_id);
+    root.left_id = nodes.get(root.left_id).right_id;
+    left_node.right_id = root.id;
+
+    nodes.update(root);
+    nodes.update(left_node);
 }
 
 function reset_tree() {
