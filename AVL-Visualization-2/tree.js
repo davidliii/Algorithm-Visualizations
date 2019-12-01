@@ -8,8 +8,7 @@ class TreeValueGenerator { //this class will only be referenced to determine the
 
         this.create_nodes(0, this.values.length - 1);
         this.create_edges();
-        console.log(this.nodes);
-        console.log(this.edges);
+        this.root_id = this.values[Math.floor((this.values.length - 1) / 2)]
     }
 
     generate_values() {

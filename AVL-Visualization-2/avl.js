@@ -7,6 +7,7 @@ let nodes = null; // node network dataset
 let edges = null; // edge network dataset
 
 let animationTime = 500;
+let avl_root_id = null;
 
 function setup() {
     canvas = createCanvas(width, height);
@@ -62,12 +63,12 @@ function setup() {
     test_ccw_button = createButton("CCW Rotate Selected");
     test_ccw_button.position(30, 220);
     test_ccw_button.style('font-size: 12px; background-color: #d9e6f2');
-    test_ccw_button.mousePressed(ccw_balance);
+    test_ccw_button.mousePressed(ccw_rotate);
 
     test_cw_button = createButton("CW Rotate Selected");
     test_cw_button.position(30, 245);
     test_cw_button.style('font-size: 12px; background-color: #d9e6f2');
-    test_cw_button.mousePressed(cw_balance);
+    test_cw_button.mousePressed(cw_rotate);
 
     fill(0);
     text("Balance = 0", 810, 10);
@@ -108,6 +109,7 @@ function create_tree() { // TODO: need to make into bst
         let tree_values = new TreeValueGenerator(val);
         nodes = new vis.DataSet(tree_values.nodes);
         edges = new vis.DataSet(tree_values.edges);
+        avl_root_id = tree_values.root_id;
         create_visualization();
     }
 }
@@ -133,7 +135,7 @@ function get_tree_height(node) { //TODO: implement
 
 }
 
-function ccw_balance(root) { //NOTE: root from dataset
+function ccw_rotate(root) { //NOTE: root from dataset
     if (root == null) { //if no root specified, perform on selected node
         root = nodes.get(network.getSelectedNodes()[0]);
     }
@@ -169,6 +171,9 @@ function ccw_balance(root) { //NOTE: root from dataset
     right_edge.from = root.right_id;
     right_edge.to = root.id;
 
+    if (parent_edge == null) {
+        avl_root_id = root.right_id; //update global root if needed
+    }
     edges.update(root_edge); //update the dataset
     edges.update(right_edge);
     if (parent_edge != null) {
@@ -192,9 +197,10 @@ function ccw_balance(root) { //NOTE: root from dataset
 
     nodes.update(root);
     nodes.update(right_node);
+    network.fit();
 }
 
-function cw_balance(root) { //NOTE: root from dataset
+function cw_rotate(root) { // NOTE: root from dataset
     if (root == null) { //if no root specified, perform on selected node
         root = nodes.get(network.getSelectedNodes()[0]);
     }
@@ -229,6 +235,10 @@ function cw_balance(root) { //NOTE: root from dataset
     left_edge.from = root.left_id;
     left_edge.to = root.id;
 
+    if (parent_edge == null) {
+        avl_root_id = root.left_id; //update global root if needed
+    }
+
     edges.update(root_edge); //update the dataset
     edges.update(left_edge);
     if (parent_edge != null) {
@@ -254,6 +264,7 @@ function cw_balance(root) { //NOTE: root from dataset
 
     nodes.update(root);
     nodes.update(left_node);
+    network.fit();
 }
 
 
