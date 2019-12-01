@@ -59,12 +59,12 @@ function setup() {
     info_button.style('font-size: 12px; background-color: #d9e6f2');
     info_button.mousePressed(get_info);
 
-    test_ccw_button = createButton("Test function CCW");
+    test_ccw_button = createButton("CCW Rotate Selected");
     test_ccw_button.position(30, 220);
     test_ccw_button.style('font-size: 12px; background-color: #d9e6f2');
     test_ccw_button.mousePressed(ccw_balance);
 
-    test_cw_button = createButton("Test function CW");
+    test_cw_button = createButton("CW Rotate Selected");
     test_cw_button.position(30, 245);
     test_cw_button.style('font-size: 12px; background-color: #d9e6f2');
     test_cw_button.mousePressed(cw_balance);
@@ -140,8 +140,11 @@ function search_key() {
 
 }
 
-function ccw_balance(root) {
-    root = nodes.get(network.getSelectedNodes()[0]);
+function ccw_balance(root) { //root from dataset
+    if (root == null) { //if no root specified, perform on selected node
+        root = nodes.get(network.getSelectedNodes()[0]);
+    }
+
     if (root.right_id == null || nodes.get(root.right_id).left_id == null) {
         return;
     }
@@ -199,7 +202,9 @@ function ccw_balance(root) {
 }
 
 function cw_balance(root) { //root from dataset
-    root = nodes.get(network.getSelectedNodes()[0])
+    if (root == null) { //if no root specified, perform on selected node
+        root = nodes.get(network.getSelectedNodes()[0]);
+    }
     if (root.left_id == null || nodes.get(root.left_id).right_id == null) { //check to see if balacing is valid
         return;
     }
@@ -290,10 +295,6 @@ function get_info() {
     let selected_node = nodes.get(selected_id);
 
     console.log(selected_node);
-}
-
-function draw() {
-
 }
 
 function test() {
