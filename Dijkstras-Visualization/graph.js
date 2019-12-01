@@ -27,8 +27,8 @@ class Graph {
             let to_list = Array(0);
 
             for (let j = 0; j < this.max_edges; j++) {
-                let to = Math.floor(Math.random() * (this.num_nodes - from)) + from + 1;
-                if (!to_list.includes(to)) {
+                let to = Math.floor(Math.random() * (this.num_nodes - from)) + from;
+                if (!to_list.includes(to) && to != from) {
                     if (to < this.nodes.length) {
                         to_list.push(to);
                         let weight = Math.floor(Math.random() * (20 - 1)) + 1; //weight range 1-20

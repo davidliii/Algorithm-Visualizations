@@ -7,8 +7,8 @@ let network = null;
 let nodes = null; // node network dataset
 let edges = null; // edge network dataset
 
-let pass_time = 500;
-let highlight_time = 50;
+let pass_time = 100;
+let highlight_time = 10;
 
 let src = null;
 let dest = null;
