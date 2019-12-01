@@ -296,7 +296,3 @@ function get_info() {
 
     console.log(selected_node);
 }
-
-function test() {
-
-}

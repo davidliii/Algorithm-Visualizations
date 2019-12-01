@@ -80,8 +80,8 @@ function create_visualization(graph) {
 
     network = new vis.Network(container, data, network_options);
 
-    let src = null;
-    let dest = null;
+    src = null;
+    dest = null;
 }
 
 function create_graph() {
@@ -90,7 +90,9 @@ function create_graph() {
     if (!isNaN(val)) {
         graph = new Graph(val);
         update_canvas = true;
-        redraw();
+        dest = null;
+        src = null;
+        create_visualization(graph);
     }
 }
 
