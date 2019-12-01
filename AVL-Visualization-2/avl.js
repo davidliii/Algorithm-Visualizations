@@ -6,7 +6,7 @@ let network = null;
 let nodes = null; // node network dataset
 let edges = null; // edge network dataset
 
-let animationTime = 500;
+let animation_time = 500;
 let avl_root_id = null;
 
 function setup() {
@@ -70,6 +70,11 @@ function setup() {
     test_cw_button.style('font-size: 12px; background-color: #d9e6f2');
     test_cw_button.mousePressed(cw_rotate);
 
+    realign_button = createButton("Realign children of Selected");
+    realign_button.position(30, 245);
+    realign_button.style('font-size: 12px; background-color: #d9e6f2');
+    realign_button.mousePressed(realign_children);
+
     fill(0);
     text("Balance = 0", 810, 10);
     text("Balance = 1", 810, 30);
@@ -102,7 +107,7 @@ function create_visualization() {
     network = new vis.Network(container, data, network_options);
 }
 
-function create_tree() { // TODO: need to make into bst
+function create_tree() {
     let val = Number(node_count.value());
     if (!isNaN(val)) {
         update_canvas = true;
@@ -123,8 +128,43 @@ function insert_node() { //TODO: implement
 
 }
 
-function search_key() { //TODO: implement
+function search_key() {
+    let key = Number(key_input.value());
+    search(avl_root_id, key);
+}
 
+async function search(node_id, key) {
+    if (node_id == null) {
+        return;
+    }
+    let node = nodes.get(node_id);
+    highlight_node_border(node, 'rgb(245, 77, 51)');
+    await sleep(animation_time);
+    reset_node_border(node);
+
+    if (Number(node.label) == key) {
+        network.selectNodes([node_id]);
+    }
+
+    else if (Number(node.label) < key) {
+        search(node.right_id, key);
+    }
+
+    else {
+        search(node.left_id, key);
+    }
+}
+
+function highlight_node_border(node, color) {
+    node.borderWidth = 3;
+    node.color = {border: color};
+    nodes.update(node);
+}
+
+function reset_node_border(node) {
+    node.borderWidth = 1;
+    node.color = {border: "black"};
+    nodes.update(node);
 }
 
 function check_balance(node) { //TODO: implement
@@ -268,14 +308,20 @@ function cw_rotate(root) { // NOTE: root from dataset
 }
 
 
-function realign_children(root) { //TODO: implement
+function realign_children(root) { //TODO: finish implementing
     //TODO: update positions of left and right children after rotation on visualization
     /*need to do after:
         - cw or ccw rotation along parent of new root (if applicable) and new root
         - insertion
         -deletion
     */
+    if (root == null) {
+        root = nodes.get(network.getSelectedNodes()[0]);
+    }
+
+
 }
+
 function reset_tree() {
     network.destroy();
     network = null;
