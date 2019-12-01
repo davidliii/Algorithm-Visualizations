@@ -101,46 +101,39 @@ function create_visualization() {
     network = new vis.Network(container, data, network_options);
 }
 
-function create_tree() {
+function create_tree() { // TODO: need to make into bst
     let val = Number(node_count.value());
     if (!isNaN(val)) {
         update_canvas = true;
-
-        nodes = new vis.DataSet([
-            {id:0, label: '0', left_id: 1, right_id: 2},
-            {id:1, label: '1', left_id: 3, right_id: 4},
-            {id:2, label: '2', left_id: 5, right_id: 6},
-            {id:3, label: '3', left_id: null, right_id: null},
-            {id:4, label: '4', left_id: null, right_id: null},
-            {id:5, label: '5', left_id: null, right_id: null},
-            {id:6, label: '6', left_id: null, right_id: null},
-        ]);
-
-        edges = new vis.DataSet([
-            {from:0, to:1},
-            {from:0, to:2},
-            {from:1, to:3},
-            {from:1, to:4},
-            {from:2, to:5},
-            {from:2, to:6}
-        ]);
+        let tree_values = new TreeValueGenerator(val);
+        nodes = new vis.DataSet(tree_values.nodes);
+        edges = new vis.DataSet(tree_values.edges);
+        create_visualization();
     }
-    create_visualization();
 }
+//----------------------------------------------------------------------------------------//
 
-function delete_node() {
-
-}
-
-function insert_node() {
+function delete_node() { //TODO: implement
 
 }
 
-function search_key() {
+function insert_node() { //TODO: implement
 
 }
 
-function ccw_balance(root) { //root from dataset
+function search_key() { //TODO: implement
+
+}
+
+function check_balance(node) { //TODO: implement
+
+}
+
+function get_tree_height(node) { //TODO: implement
+
+}
+
+function ccw_balance(root) { //NOTE: root from dataset
     if (root == null) { //if no root specified, perform on selected node
         root = nodes.get(network.getSelectedNodes()[0]);
     }
@@ -201,7 +194,7 @@ function ccw_balance(root) { //root from dataset
     nodes.update(right_node);
 }
 
-function cw_balance(root) { //root from dataset
+function cw_balance(root) { //NOTE: root from dataset
     if (root == null) { //if no root specified, perform on selected node
         root = nodes.get(network.getSelectedNodes()[0]);
     }
@@ -263,6 +256,15 @@ function cw_balance(root) { //root from dataset
     nodes.update(left_node);
 }
 
+
+function realign_children(root) { //TODO: implement
+    //TODO: update positions of left and right children after rotation on visualization
+    /*need to do after:
+        - cw or ccw rotation along parent of new root (if applicable) and new root
+        - insertion
+        -deletion
+    */
+}
 function reset_tree() {
     network.destroy();
     network = null;
