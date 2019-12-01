@@ -5,4 +5,4 @@ Max Heap Visualization (v2): https://davidliii.github.io/Algorithm-Visualization
 
 AVL Tree Visualization (developing): https://davidliii.github.io/Algorithm-Visualizations/AVL-Visualization/
 
-Dijkstra's Algorithm (developing): https://davidliii.github.io/Algorithm-Visualizations/Dijkstras-Visualization/
+Dijkstra's Shortest Path Algorithm: https://davidliii.github.io/Algorithm-Visualizations/Dijkstras-Visualization/
