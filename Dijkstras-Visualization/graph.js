@@ -31,7 +31,7 @@ class Graph {
                 if (!to_list.includes(to)) {
                     if (to < this.nodes.length) {
                         to_list.push(to);
-                        let weight = Math.floor(Math.random() * (20 - 1)) + 1;
+                        let weight = Math.floor(Math.random() * (20 - 1)) + 1; //weight range 1-20
                         let edge = new Edge(from, to, weight);
                         this.edges.push(edge);
                     }

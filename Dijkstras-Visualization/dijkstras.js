@@ -63,6 +63,8 @@ function setup() {
     test_function_button.style('font-size: 12px; background-color: #d9e6f2');
     test_function_button.mousePressed(reset_path);
 
+    write_background();
+
     noLoop(); // using redraw() to control animmation
 }
 
@@ -83,6 +85,7 @@ function create_visualization(graph) {
 }
 
 function create_graph() {
+    write_background();
     let val = Number(node_count.value());
     if (!isNaN(val)) {
         graph = new Graph(val);
@@ -119,6 +122,10 @@ function set_examined_node(id) {
     set_node_color(id, "#79cf72");
 }
 
+function set_visited_node(id) {
+    set_node_color(id, "#f5425d");
+}
+
 function set_node_color(node_id, color) {
     let x = nodes.get(node_id);
     x.color = color;
@@ -138,6 +145,7 @@ function reset_graph() {
     graph = null
     network.destroy();
     network = null;
+    write_background();
 }
 
 function draw() {
@@ -169,6 +177,7 @@ function get_info() {
 //-----------------------------------------------------------------------------------//
 
 async function find_shortest() {
+    write_background()
     if (src == null || dest == null) { //check for valid inputs
         return;
     }
@@ -208,7 +217,9 @@ async function find_shortest() {
     queue = new Queue(vertices, vList);
 
     let curr_id = queue.peak().id;
+
     while (curr_id != dest.id) {
+        set_visited_node(curr_id);
         let neighbors = network.getConnectedNodes(curr_id);
 
         for (let i = 0; i < neighbors.length; i++) {
@@ -246,22 +257,47 @@ async function do_traceback(queue) { //TODO :display distance/path on screen
     }
 
     if (path[0] != src.id) {
-        console.log([src.id, dest.id]);
-        console.log("distance: INFINITY");
+
+        write_path_info(-1, [src.id, dest.id]);
         return;
     }
-    console.log(path);
-    console.log("distance: " + queue.vList[path[path.length - 1]].dist);
 
     for (let i = 0; i < path.length; i++) {
         set_path_node(path[i]);
         if (i < path.length) {
             let path_edge = new Edge(path[i], path[i + 1], 0);
             let path_edge_id = edges.add(path_edge)[0];
+            await sleep(pass_time);
             set_path_edge(path_edge_id);
         }
-        await sleep(highlight_time);
     }
+    write_path_info(queue.vList[path[path.length - 1]].dist, path);
+}
+
+function write_path_info(distance, path) {
+    write_background();
+    if (distance == -1) {
+        text("NO PATH", 580, 10);
+    }
+
+    else {
+        text(distance.toString(), 580, 10);
+
+        let path_string = "";
+        for (let i = 0; i < path.length; i++) {
+            path_string = path_string.concat(path[i].toString() + " ");
+            if (i != path.length - 1) {
+                path_string = path_string.concat(String.fromCharCode(8594) + "  ");
+            }
+        }
+        text(path_string, 550, 30);
+    }
+}
+
+function write_background() {
+    background(255);
+    text('DISTANCE: ', 500, 10);
+    text('PATH: ', 500, 30);
 }
 
 function find_weight(curr_id, neighbor) {
@@ -296,6 +332,7 @@ function reset_edge_color(id) {
 }
 
 function reset_path() {
+    write_background();
     let node_ids = nodes.get();
     let edge_ids = edges.get();
 
