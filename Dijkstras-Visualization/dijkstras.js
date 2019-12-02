@@ -246,7 +246,6 @@ async function find_shortest() {
         curr_id = queue.peak().id;
         await sleep(pass_time);
     }
-    console.log("done");
     do_traceback(queue);
 }
 
@@ -348,9 +347,9 @@ function reset_path() {
 }
 
 function set_path_node(id) {
-    set_node_color(id, "#4e33ff");
+    set_node_color(id, "#9585ff");
 }
 
 function set_path_edge(id) {
-    highlight_edge(id, "#4e33ff");
+    highlight_edge(id, "#9585ff");
 }

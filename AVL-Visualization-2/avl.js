@@ -308,7 +308,6 @@ function cw_rotate(root) { // NOTE: root from dataset
     network.fit();
 }
 
-
 function realign_children(root) {
     if (root == null) {
         root = nodes.get(network.getSelectedNodes()[0]);
