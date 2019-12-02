@@ -3,11 +3,13 @@ class TreeValueGenerator { //this class will only be referenced to determine the
     constructor(num_nodes) {
         this.num_nodes = num_nodes;
         this.values = this.generate_values();
+
         this.nodes = Array(0);
         this.edges = Array(0);
 
         this.create_nodes(0, this.values.length - 1);
         this.create_edges();
+
         this.root_id = this.values[Math.floor((this.values.length - 1) / 2)]
     }
 
@@ -59,6 +61,7 @@ class Node { //use this as a template for vis dataset node
         this.label = label.toString();
         this.right_id = null;
         this.left_id = null;
+        this.balance = 0;
     }
 }
 

@@ -71,9 +71,14 @@ function setup() {
     test_cw_button.mousePressed(cw_rotate);
 
     realign_button = createButton("Realign children of Selected");
-    realign_button.position(30, 245);
+    realign_button.position(30, 270);
     realign_button.style('font-size: 12px; background-color: #d9e6f2');
     realign_button.mousePressed(realign_children);
+
+    set_balance_button = createButton("Set node balances");
+    set_balance_button.position(30, 295);
+    set_balance_button.style('font-size: 12px; background-color: #d9e6f2');
+    set_balance_button.mousePressed(set_node_balances);
 
     fill(0);
     text("Balance = 0", 810, 10);
@@ -106,6 +111,7 @@ function create_visualization() {
 
     network = new vis.Network(container, data, network_options);
     network.storePositions();
+    set_node_balances();
 }
 
 function create_tree() {
@@ -167,15 +173,69 @@ function reset_node_border(node) {
     node.color = {border: "black"};
     nodes.update(node);
 }
-
-function check_balance(node) { //TODO: implement
-
+//----------------------------------------------------------------------------------------//
+function set_node_balances() { //need to run this function anytime something changes in the tree
+    let all_nodes = nodes.get();
+    for (let i = 0; i < all_nodes.length; i++) {
+        let node = all_nodes[i];
+        node.balance = set_balance(node.id);
+        //for each node, update its color based on balance
+        nodes.update(node);
+        set_balance_color(node.id);
+    }
 }
 
-function get_tree_height(node) { //TODO: implement
+function set_balance(node_id) {
+    let node = nodes.get(node_id);
+    let left_height = get_tree_height(node.left_id);
+    let right_height = get_tree_height(node.right_id);
 
+    return left_height - right_height;
 }
 
+function get_tree_height(node_id) {
+    if (node_id == null) {
+        return 0;
+    }
+    let node = nodes.get(node_id);
+    let left_height = get_tree_height(node.left_id);
+    let right_height = get_tree_height(node.right_id);
+
+    let max_height = max(left_height, right_height) + 1;
+    return max_height;
+}
+
+function set_balance_color(node_id) {
+    let color;
+    let balance = nodes.get(node_id).balance;
+    if (balance == 0) {
+        color = "rgb(255, 255, 255)";
+    }
+
+    else if (balance == -1) {
+        color = "rgb(186, 255, 209)";
+    }
+
+    else if (balance == 1) {
+        color = "rgb(186, 213, 255)";
+    }
+
+    else if (balance > 1) {
+        color = "rgb(42, 80, 176)";
+    }
+
+    else {
+        color = "rgb(34, 186, 59)";
+    }
+    set_node_color(node_id, color)
+}
+
+function set_node_color(node_id, color) {
+    let node = nodes.get(node_id);
+    node.color = {background: color};
+    nodes.update(node);
+}
+//----------------------------------------------------------------------------------------//
 function ccw_rotate(root) { //NOTE: root from dataset
     if (root == null) { //if no root specified, perform on selected node
         root = nodes.get(network.getSelectedNodes()[0]);
@@ -239,6 +299,8 @@ function ccw_rotate(root) { //NOTE: root from dataset
     nodes.update(root);
     nodes.update(right_node);
     network.fit();
+    set_node_balances();
+    realign_all_nodes()
 }
 
 function cw_rotate(root) { // NOTE: root from dataset
@@ -306,16 +368,33 @@ function cw_rotate(root) { // NOTE: root from dataset
     nodes.update(root);
     nodes.update(left_node);
     network.fit();
+    set_node_balances();
+    realign_all_nodes()
+}
+//----------------------------------------------------------------------------------------//
+function realign_all_nodes() {
+    let all_nodes = nodes.get();
+    for (let i = 0; i < all_nodes.length; i++) {
+        realign_children(all_nodes[i].id);
+    }
 }
 
-function realign_children(root) {
-    if (root == null) {
-        root = nodes.get(network.getSelectedNodes()[0]);
+function realign_children(root_id) {
+    if (root_id == null) {
+        let root_id = nodes.get(network.getSelectedNodes()[0]).id;
     }
 
-    if (root != null) {
-        let left_node = nodes.get(root.left_id);
-        let right_node = nodes.get(root.right_id);
+    if (root_id != null) {
+        let root = nodes.get(root_id);
+        let left_node_id = root.left_id;
+        let right_node_id = root.right_id;
+
+        if (left_node_id == null || right_node_id == null) {
+            return;
+        }
+
+        let left_node = nodes.get(left_node_id);
+        let right_node = nodes.get(right_node_id);
 
         let left_position = network.getPositions([left_node.id])[left_node.id].x;
         let right_position = network.getPositions([right_node.id])[right_node.id].x;
@@ -328,7 +407,7 @@ function realign_children(root) {
         }
     }
 }
-
+//----------------------------------------------------------------------------------------//
 function reset_tree() {
     network.destroy();
     network = null;
