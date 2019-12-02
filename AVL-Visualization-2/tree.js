@@ -11,6 +11,8 @@ class TreeValueGenerator { //this class will only be referenced to determine the
         this.create_edges();
 
         this.root_id = this.values[Math.floor((this.values.length - 1) / 2)]
+        this.num_nodes = null; //garbage collection
+        this.values = null; //garbage collection
     }
 
     generate_values() {

@@ -9,6 +9,8 @@ let edges = null; // edge network dataset
 let animation_time = 500;
 let avl_root_id = null;
 
+let insertion_location_found = false;
+
 function setup() {
     canvas = createCanvas(width, height);
 
@@ -70,10 +72,10 @@ function setup() {
     test_cw_button.style('font-size: 12px; background-color: #d9e6f2');
     test_cw_button.mousePressed(cw_rotate);
 
-    realign_button = createButton("Realign children of Selected");
+    realign_button = createButton("Realign Nodes");
     realign_button.position(30, 270);
     realign_button.style('font-size: 12px; background-color: #d9e6f2');
-    realign_button.mousePressed(realign_children);
+    realign_button.mousePressed(realign_all_nodes);
 
     set_balance_button = createButton("Set node balances");
     set_balance_button.position(30, 295);
@@ -122,19 +124,68 @@ function create_tree() {
         nodes = new vis.DataSet(tree_values.nodes);
         edges = new vis.DataSet(tree_values.edges);
         avl_root_id = tree_values.root_id;
+        tree = null; //garbage collection
         create_visualization();
     }
 }
 //----------------------------------------------------------------------------------------//
-
 function delete_node() { //TODO: implement
 
 }
 
-function insert_node() { //TODO: implement
-
+function insert_node() {
+    let val_to_insert = Number(insert_input.value());
+    insert(avl_root_id, val_to_insert);
 }
 
+async function insert(node_id, val_to_insert) {
+    if (node_id == null) {
+        insertion_location_found = true;
+        return;
+    }
+
+    let node = nodes.get(node_id);
+
+    highlight_node_border(node, "rgb(255, 105, 140)");
+    await sleep(450);
+    reset_node_border(node);
+
+    if (val_to_insert < node.id) {
+        insert(node.left_id, val_to_insert);
+    }
+    if (val_to_insert > node.id) {
+        insert(node.right_id, val_to_insert);
+    }
+    if (val_to_insert == node.id) {
+        return; //reject duplicate values in bst
+    }
+
+    if (insertion_location_found) {
+        let edge = {from: node_id, to:val_to_insert};
+        edges.update(edge);
+        let new_node = {
+            id: val_to_insert,
+            label: val_to_insert.toString(),
+            right_id: null,
+            left_id: null,
+            balance: 0};
+        nodes.update(new_node);
+
+        if (val_to_insert < node_id) {
+            node.left_id = val_to_insert;
+        }
+
+        else {
+            node.right_id = val_to_insert;
+        }
+        nodes.update(node);
+
+        realign_children(node_id);
+        set_node_balances();
+        insertion_location_found = false;
+    }
+}
+//----------------------------------------------------------------------------------------//
 function search_key() {
     let key = Number(key_input.value());
     search(avl_root_id, key);
@@ -381,7 +432,7 @@ function realign_all_nodes() {
 
 function realign_children(root_id) {
     if (root_id == null) {
-        let root_id = nodes.get(network.getSelectedNodes()[0]).id;
+        root_id = nodes.get(network.getSelectedNodes()[0]).id;
     }
 
     if (root_id != null) {
@@ -411,7 +462,7 @@ function realign_children(root_id) {
 function reset_tree() {
     network.destroy();
     network = null;
-    network_root = null;
+    avl_root_id = null;
 }
 
 function toggle_physics() {
