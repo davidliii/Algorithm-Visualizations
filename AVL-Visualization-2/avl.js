@@ -105,6 +105,7 @@ function create_visualization() {
     };
 
     network = new vis.Network(container, data, network_options);
+    network.storePositions();
 }
 
 function create_tree() {
@@ -308,18 +309,25 @@ function cw_rotate(root) { // NOTE: root from dataset
 }
 
 
-function realign_children(root) { //TODO: finish implementing
-    //TODO: update positions of left and right children after rotation on visualization
-    /*need to do after:
-        - cw or ccw rotation along parent of new root (if applicable) and new root
-        - insertion
-        -deletion
-    */
+function realign_children(root) {
     if (root == null) {
         root = nodes.get(network.getSelectedNodes()[0]);
     }
 
+    if (root != null) {
+        let left_node = nodes.get(root.left_id);
+        let right_node = nodes.get(root.right_id);
 
+        let left_position = network.getPositions([left_node.id])[left_node.id].x;
+        let right_position = network.getPositions([right_node.id])[right_node.id].x;
+
+        if (left_position > right_position) { //correct positions in visualization
+            left_node.x = right_position;
+            right_node.x = left_position;
+            nodes.update(left_node);
+            nodes.update(right_node);
+        }
+    }
 }
 
 function reset_tree() {
