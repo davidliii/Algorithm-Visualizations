@@ -40,8 +40,6 @@ var network_options = { // network visualization options
     },
 
     layout: {
-        //improvedLayout: true,
-        //randomSeed: 293471,
         hierarchical: {
             enabled: true,
             levelSeparation: 80,
@@ -54,4 +52,9 @@ var network_options = { // network visualization options
     configure: {
         enabled:false
     },
+
+    interaction: {
+        hideEdgesOnDrag: true,
+        hideEdgesOnZoom: true
+    }
 };
