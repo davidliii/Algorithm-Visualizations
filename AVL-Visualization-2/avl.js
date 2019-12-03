@@ -129,9 +129,15 @@ function create_tree() {
     }
 }
 //----------------------------------------------------------------------------------------//
-function delete_node() { //TODO: Update avl_root_id is necesary for all delete cases 
-    //TODO: account for when the node to be deleted is the avl root (update global)
+function delete_node() {
     let node_to_delete = nodes.get(network.getSelectedNodes()[0]);
+
+    let num_nodes = nodes.get().length;
+    if (num_nodes == 1) {
+        nodes.remove(node_to_delete);
+        avl_root_id = null;
+        return;
+    }
 
     //case 1 - leaf node delete
     if (node_to_delete.left_id == null && node_to_delete.right_id == null) {
@@ -179,6 +185,10 @@ function delete_node_with_one_child(node_to_delete) {
         child_id = node_to_delete.left_id;
     }
 
+    if (node_to_delete.id == avl_root_id) {
+        avl_root_id = child_id;
+    }
+
     let edge_ids = network.getConnectedEdges(node_to_delete.id);
     let edge_1 = edges.get(edge_ids[0]);
     let edge_2 = edges.get(edge_ids[1]);
@@ -216,6 +226,10 @@ function delete_node_with_one_child(node_to_delete) {
 function delete_node_with_two_children(node_to_delete) {
     let successor_id = find_successor_id(node_to_delete.id);
     let successor_node = nodes.get(successor_id);
+
+    if (node_to_delete.id == avl_root_id) { //update global root if necesary
+        avl_root_id = successor_id;
+    }
 
     if (successor_node.left_id == null && successor_node.right_id == null) {
         delete_leaf(successor_node);
@@ -256,10 +270,19 @@ function delete_node_with_two_children(node_to_delete) {
         id: successor_id,
         label: successor_id.toString(),
         right_id: node_to_delete.right_id,
-        left_id: node_to_delete.left_id
+        left_id: node_to_delete.left_id,
     };
 
     nodes.remove(node_to_delete);
+    nodes.update(new_node);
+
+    if (new_node.right_id == new_node.id) { //special case
+        new_node.right_id = null;
+    }
+
+    if (new_node.left_id == new_node.id) { //special case
+        new_node.left_id = null;
+    }
     nodes.update(new_node);
 }
 
@@ -433,6 +456,10 @@ function set_node_color(node_id, color) {
     nodes.update(node);
 }
 //----------------------------------------------------------------------------------------//
+function find_unbalanced_node(starting_id) {
+
+}
+//----------------------------------------------------------------------------------------//
 function ccw_rotate(root) { //NOTE: root from dataset
     if (root == null) { //if no root specified, perform on selected node
         root = nodes.get(network.getSelectedNodes()[0]);
@@ -570,19 +597,10 @@ function cw_rotate(root) { // NOTE: root from dataset
 }
 //----------------------------------------------------------------------------------------//
 function realign_all_nodes() {
-    toggle_physics(); //if physics aren't enabled, enable it so that the nodes repel to correct location
-    let all_nodes = nodes.get();
-    for (let i = 0; i < all_nodes.length; i++) {
-        realign_children(all_nodes[i].id);
-    }
-    toggle_physics(); //return to original physics setting
+    realign_children(avl_root_id);
 }
 
 function realign_children(root_id) {
-    if (root_id == null) {
-        root_id = nodes.get(network.getSelectedNodes()[0]).id;
-    }
-
     if (root_id != null) {
         let root = nodes.get(root_id);
         let left_node_id = root.left_id;
@@ -598,12 +616,17 @@ function realign_children(root_id) {
         let left_position = network.getPositions([left_node.id])[left_node.id].x;
         let right_position = network.getPositions([right_node.id])[right_node.id].x;
 
+        let node_position = network.getPositions([root.id])[root.id].x
+
         if (left_position > right_position) { //correct positions in visualization
             left_node.x = right_position;
             right_node.x = left_position;
             nodes.update(left_node);
             nodes.update(right_node);
         }
+
+        realign_children(left_node_id);
+        realign_children(right_node_id);
     }
 }
 //----------------------------------------------------------------------------------------//

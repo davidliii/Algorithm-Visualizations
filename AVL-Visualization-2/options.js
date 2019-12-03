@@ -18,7 +18,12 @@ var network_options = { // network visualization options
     edges: {
         color:'black',
         selectionWidth:0.1,
-        width:1
+        width:1,
+        smooth: {
+            enabled:true,
+            type:'continuous',
+            roundness: 1
+        }
     },
 
     physics: {
