@@ -129,89 +129,154 @@ function create_tree() {
     }
 }
 //----------------------------------------------------------------------------------------//
-function delete_node() { //TODO: finish implementation
-    /* Cases
-    1- leaf node is deleted
-        -just remove the link and delete it
-    2- node to be deleted has 1 child
-        -make a link between node's parent to the child and delete node
-    3- node to be deleted has 2 children
-    */
-    //node is given through selection
+function delete_node() { //TODO: Update avl_root_id is necesary for all delete cases 
     //TODO: account for when the node to be deleted is the avl root (update global)
     let node_to_delete = nodes.get(network.getSelectedNodes()[0]);
 
-    //case 1
+    //case 1 - leaf node delete
     if (node_to_delete.left_id == null && node_to_delete.right_id == null) {
-        let edge_id = network.getConnectedEdges(node_to_delete.id)[0];
-        let edge = edges.get(edge_id);
-        let parent_id = edge.from;
-        let parent_node = nodes.get(parent_id);
-
-        if (parent_node.left_id == node_to_delete.id) {
-            parent_node.left_id = null;
-        }
-
-        if (parent_node.right_id == node_to_delete.id) {
-            parent_node.right_id = null;
-        }
-        nodes.update(parent_node);
-        edges.remove(edge);
-        nodes.remove(node_to_delete);
+        delete_leaf(node_to_delete);
     }
 
-    //case 2
-    else if (node_to_delete.left_id == null || node_to_delete.right_child == null) {
-        let child_id;
-
-        if (node_to_delete.left_id == null) {
-            child_id = node_to_delete.right_id; //get child id
-        }
-
-        else {
-            child_id = node_to_delete.left_id;
-        }
-
-        let edge_ids = network.getConnectedEdges(node_to_delete.id);
-        let edge_1 = edges.get(edge_ids[0]);
-        let edge_2 = edges.get(edge_ids[1]);
-        let parent_to_node_edge;
-        let node_to_child_edge;
-
-        if (edge_1.to == child_id) {
-            node_to_child_edge = edge_1;
-            parent_to_node_edge = edge_2;
-        }
-
-        else {
-            node_to_child_edge = edge_2;
-            parent_to_node_edge = edge_1;
-        }
-
-        edges.remove(node_to_child_edge);
-        parent_to_node_edge.to = child_id;
-        edges.update(parent_to_node_edge);
-
-        let parent_id = parent_to_node_edge.from;
-        let parent_node = nodes.get(parent_id);
-
-        if (parent_node.left_id == node_to_delete.id) {
-            parent_node.left_id = child_id;
-        }
-
-        if (parent_node.right_id == node_to_delete.id) {
-            parent_node.right_id = child_id;
-        }
-        nodes.update(parent_node);
-        nodes.remove(node_to_delete);
+    //case 2 - delete node with only 1 child
+    else if ((node_to_delete.left_id == null) || (node_to_delete.right_id == null)) {
+        delete_node_with_one_child(node_to_delete);
     }
 
-    //case 3
+    //case 3 - delete node with two children
     else {
-
+        delete_node_with_two_children(node_to_delete);
     }
     set_node_balances();
     realign_all_nodes();
+}
+
+function delete_leaf(node_to_delete) {
+    let edge_id = network.getConnectedEdges(node_to_delete.id)[0];
+    let edge = edges.get(edge_id);
+    let parent_id = edge.from;
+    let parent_node = nodes.get(parent_id);
+
+    if (parent_node.left_id == node_to_delete.id) {
+        parent_node.left_id = null;
+    }
+
+    if (parent_node.right_id == node_to_delete.id) {
+        parent_node.right_id = null;
+    }
+    nodes.update(parent_node);
+    edges.remove(edge);
+    nodes.remove(node_to_delete);
+}
+
+function delete_node_with_one_child(node_to_delete) {
+    let child_id;
+    if (node_to_delete.left_id == null) {
+        child_id = node_to_delete.right_id; //get child id
+    }
+
+    else {
+        child_id = node_to_delete.left_id;
+    }
+
+    let edge_ids = network.getConnectedEdges(node_to_delete.id);
+    let edge_1 = edges.get(edge_ids[0]);
+    let edge_2 = edges.get(edge_ids[1]);
+    let parent_to_node_edge;
+    let node_to_child_edge;
+
+    if (edge_1.to == child_id) {
+        node_to_child_edge = edge_1;
+        parent_to_node_edge = edge_2;
+    }
+
+    else {
+        node_to_child_edge = edge_2;
+        parent_to_node_edge = edge_1;
+    }
+
+    edges.remove(node_to_child_edge);
+    parent_to_node_edge.to = child_id;
+    edges.update(parent_to_node_edge);
+
+    let parent_id = parent_to_node_edge.from;
+    let parent_node = nodes.get(parent_id);
+
+    if (parent_node.left_id == node_to_delete.id) {
+        parent_node.left_id = child_id;
+    }
+
+    if (parent_node.right_id == node_to_delete.id) {
+        parent_node.right_id = child_id;
+    }
+    nodes.update(parent_node);
+    nodes.remove(node_to_delete);
+}
+
+function delete_node_with_two_children(node_to_delete) {
+    let successor_id = find_successor_id(node_to_delete.id);
+    let successor_node = nodes.get(successor_id);
+
+    if (successor_node.left_id == null && successor_node.right_id == null) {
+        delete_leaf(successor_node);
+    }
+
+    else if ((successor_node.left_id == null) || (successor_node.right_id == null)) {
+        delete_node_with_one_child(successor_node);
+    }
+
+    let node_edge_ids = network.getConnectedEdges(node_to_delete.id);
+    let parent_id = null;
+    for (let i = 0; i < node_edge_ids.length; i++) {
+        let edge = edges.get(node_edge_ids[i]);
+        if (edge.to == node_to_delete.id) {
+            edge.to = successor_id;
+            parent_id = edge.from;
+        }
+
+        if (edge.from == node_to_delete.id) {
+            edge.from = successor_id;
+        }
+        edges.update(edge);
+    }
+
+    if (parent_id != null) {
+        let parent = nodes.get(parent_id);
+        if (parent.left_id == node_to_delete.id) {
+            parent.left_id = successor_id;
+        }
+
+        if (parent.right_id == node_to_delete.id) {
+            parent.right_id = sucessor_id;
+        }
+        nodes.update(parent);
+    }
+
+    let new_node = {
+        id: successor_id,
+        label: successor_id.toString(),
+        right_id: node_to_delete.right_id,
+        left_id: node_to_delete.left_id
+    };
+
+    nodes.remove(node_to_delete);
+    nodes.update(new_node);
+}
+
+function find_successor_id(node_id) {
+    //find max in left sub-tree;
+    let node = nodes.get(node_id);
+    let successor_id = node.left_id;
+
+    let successor = nodes.get(successor_id);
+    let id;
+
+    while (successor.right_id != null) {
+        successor_id = successor.right_id;
+        successor = nodes.get(successor_id);
+    }
+
+    return successor_id;
 }
 
 function insert_node() {
@@ -505,12 +570,12 @@ function cw_rotate(root) { // NOTE: root from dataset
 }
 //----------------------------------------------------------------------------------------//
 function realign_all_nodes() {
-    toggle_physics();
+    toggle_physics(); //if physics aren't enabled, enable it so that the nodes repel to correct location
     let all_nodes = nodes.get();
     for (let i = 0; i < all_nodes.length; i++) {
         realign_children(all_nodes[i].id);
     }
-    toggle_physics();
+    toggle_physics(); //return to original physics setting
 }
 
 function realign_children(root_id) {
