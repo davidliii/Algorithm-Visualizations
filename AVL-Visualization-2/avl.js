@@ -10,6 +10,7 @@ let animation_time = 500;
 let avl_root_id = null;
 
 let insertion_location_found = false;
+let deletion_location_found = false;
 
 function setup() {
     canvas = createCanvas(width, height);
@@ -23,10 +24,14 @@ function setup() {
     build_tree.style('font-size: 12px; background-color: #d9e6f2');
     build_tree.mousePressed(create_tree);
 
-    delete_button = createButton("Delete Selected Node"); //button to delete a node
+    delete_button = createButton("Delete Node"); //button to delete a node
     delete_button.position(30, 70);
     delete_button.style('font-size: 12px; background-color: #d9e6f2');
     delete_button.mousePressed(delete_node);
+
+    delete_input = createInput();
+    delete_input.size(32, 13);
+    delete_input.position(120, 70);
 
     insert_button = createButton("Insert Node"); //button to insert a node
     insert_button.position(30, 95);
@@ -61,26 +66,6 @@ function setup() {
     info_button.position(30, 195);
     info_button.style('font-size: 12px; background-color: #d9e6f2');
     info_button.mousePressed(get_info);
-
-    test_ccw_button = createButton("CCW Rotate Selected");
-    test_ccw_button.position(30, 220);
-    test_ccw_button.style('font-size: 12px; background-color: #d9e6f2');
-    test_ccw_button.mousePressed(ccw_rotate);
-
-    test_cw_button = createButton("CW Rotate Selected");
-    test_cw_button.position(30, 245);
-    test_cw_button.style('font-size: 12px; background-color: #d9e6f2');
-    test_cw_button.mousePressed(cw_rotate);
-
-    realign_button = createButton("Realign Nodes");
-    realign_button.position(30, 270);
-    realign_button.style('font-size: 12px; background-color: #d9e6f2');
-    realign_button.mousePressed(realign_all_nodes);
-
-    set_balance_button = createButton("Set node balances");
-    set_balance_button.position(30, 295);
-    set_balance_button.style('font-size: 12px; background-color: #d9e6f2');
-    set_balance_button.mousePressed(set_node_balances);
 
     fill(0);
     text("Balance = 0", 810, 10);
@@ -129,32 +114,63 @@ function create_tree() {
     }
 }
 //----------------------------------------------------------------------------------------//
-function delete_node() { //rebalancing needed
-    let node_to_delete = nodes.get(network.getSelectedNodes()[0]);
+function delete_node() {
+    let val_to_delete = Number(delete_input.value());
+    bst_delete(avl_root_id, val_to_delete);
+    balance_tree(avl_root_id);
+    realign_all_nodes();
+}
 
-    let num_nodes = nodes.get().length;
-    if (num_nodes == 1) {
-        nodes.remove(node_to_delete);
-        avl_root_id = null;
+async function bst_delete(node_id, val) { //rebalancing needed
+    if (node_id == null) {
+        deletion_location_found = false;
         return;
     }
 
-    //case 1 - leaf node delete
-    if (node_to_delete.left_id == null && node_to_delete.right_id == null) {
-        delete_leaf(node_to_delete);
-    }
+    let node = nodes.get(node_id);
 
-    //case 2 - delete node with only 1 child
-    else if ((node_to_delete.left_id == null) || (node_to_delete.right_id == null)) {
-        delete_node_with_one_child(node_to_delete);
-    }
+    highlight_node_border(node, "rgb(255, 105, 140)");
+    await sleep(450);
+    reset_node_border(node);
 
-    //case 3 - delete node with two children
-    else {
-        delete_node_with_two_children(node_to_delete);
+    if (val < node.id) {
+        await bst_delete(node.left_id, val);
+        balance_tree(node.id);
     }
-    set_node_balances();
-    realign_all_nodes();
+    if (val > node.id) {
+        await bst_delete(node.right_id, val);
+        balance_tree(node.id);
+    }
+    if (val == node.id) {
+        deletion_location_found = true;
+    }
+    if (deletion_location_found == true) {
+        let num_nodes = nodes.get().length;
+        if (num_nodes == 1) {
+            nodes.remove(node);
+            avl_root_id = null;
+            return;
+        }
+
+        //case 1 - leaf node delete
+        if (node.left_id == null && node.right_id == null) {
+            delete_leaf(node);
+            set_node_balances();
+        }
+
+        //case 2 - delete node with only 1 child
+        else if ((node.left_id == null) || (node.right_id == null)) {
+            delete_node_with_one_child(node);
+            set_node_balances();
+        }
+
+        //case 3 - delete node with two children
+        else {
+            delete_node_with_two_children(node);
+            set_node_balances();
+        }
+        deletion_location_found = false;
+    }
 }
 
 function delete_leaf(node_to_delete) {
@@ -301,7 +317,7 @@ function find_successor_id(node_id) {
 
     return successor_id;
 }
-
+//----------------------------------------------------------------------------------------//
 function insert_node() {
     let val_to_insert = Number(insert_input.value());
     insert(avl_root_id, val_to_insert);
@@ -320,10 +336,10 @@ async function insert(node_id, val_to_insert) { //rebalancing needed
     reset_node_border(node);
 
     if (val_to_insert < node.id) {
-        insert(node.left_id, val_to_insert);
+        await insert(node.left_id, val_to_insert);
     }
     if (val_to_insert > node.id) {
-        insert(node.right_id, val_to_insert);
+        await insert(node.right_id, val_to_insert);
     }
     if (val_to_insert == node.id) {
         return; //reject duplicate values in bst
@@ -352,9 +368,8 @@ async function insert(node_id, val_to_insert) { //rebalancing needed
         realign_children(node_id);
         set_node_balances();
         insertion_location_found = false;
-
-        balance_tree();
     }
+    balance_tree(node.id)
 }
 //----------------------------------------------------------------------------------------//
 function search_key() {
@@ -458,15 +473,17 @@ function set_node_color(node_id, color) {
     nodes.update(node);
 }
 //----------------------------------------------------------------------------------------//
-function balance_tree() {
-    let unbalanced_id = find_unbalanced_node_id();
+function balance_tree(unbalanced_id) {
     if (unbalanced_id == null) {
         return;
     }
 
-    console.log("need balancing");
     let unbalanced_node = nodes.get(unbalanced_id);
     let child_id;
+
+    if (unbalanced_node.balance == 0 || unbalanced_node.balance == -1 || unbalanced_node.balance == 1) {
+        return;
+    }
 
     if (unbalanced_node.balance > 1) {
         child_id = unbalanced_node.left_id;
@@ -489,7 +506,7 @@ function balance_tree() {
     }
 
     if (unbalanced_node.balance < -1 && unbalanced_child_node.balance == -1) {
-        right_right(unbalanced_id);
+        right_right_balance(unbalanced_id);
         return;
     }
 
@@ -526,151 +543,160 @@ function right_left_balance(unbalanced_id, unbalanced_child_id) {
     ccw_rotate(unbalanced_node);
 }
 
-function find_unbalanced_node_id() {
-    let all_nodes = nodes.get();
-    for (let i = 0; i < all_nodes.length; i++) {
-        if (all_nodes[i].balance > 1 || all_nodes[i].balance < -1) {
-            return all_nodes[i].id;
-        }
-    }
-    return null;
-}
 //----------------------------------------------------------------------------------------//
-//FIXME: rotations not working correctly when balancing
 function ccw_rotate(root) { //NOTE: root from dataset
-    if (root == null) { //if no root specified, perform on selected node
-        root = nodes.get(network.getSelectedNodes()[0]);
-    }
+    let right_id = root.right_id;
+    let right_child = nodes.get(right_id);
 
-    if (root.right_id == null || nodes.get(root.right_id).left_id == null) {
-        return;
-    }
-    let root_edges = network.getConnectedEdges(root.id); //get edges from root
-    let right_edges = network.getConnectedEdges(root.right_id); //get edges from right child
+    let rights_left_child_id = right_child.left_id; //could be null
+    let rights_left_child = rights_left_child_id == null ? null : nodes.get(rights_left_child_id);
 
-    //find edge from root to left child
-    let root_edge = null;
-    let parent_edge = null;
-    for (let i = 0; i < root_edges.length; i++) {
-        let edge = edges.get(root_edges[i]);
-        if (edge.to == root.right_id) {
-            root_edge = edge;
+    let parent_id = null; //could or could not exist, if avl root then does not exist
+    let parent_node = null; //if avl root then update global is needed
+
+    let root_to_right_child_edge = null;
+    let parent_to_root_edge = null; //may or may not exist
+    let right_to_rights_left_child_edge = null; //may or may not exist
+
+    let root_edge_ids = network.getConnectedEdges(root.id);
+    for (let i = 0; i < root_edge_ids.length; i++) {
+        let edge = edges.get(root_edge_ids[i]);
+        if (edge.to == root.id) {   //means parent node also found
+            parent_to_root_edge = edge;
+            parent_id = edge.from;
+            parent_node = nodes.get(parent_id);
         }
-        if (edge.to == root.id) {
-            parent_edge = edge; //find parent edge is applicable
-        }
-    }
-    //find edge from left child to left child's right child
-    let right_edge = null;
-    for (let i = 0; i < right_edges.length; i++) {
-        let edge = edges.get(right_edges[i]);
-        if (edge.to == nodes.get(root.right_id).left_id) {
-            right_edge = edge;
+
+        if (edge.to == right_id) {  //root to left child edge found
+            root_to_right_child_edge = edge;
         }
     }
 
-    root_edge.to = nodes.get(root.right_id).left_id; //change where each edge points
-    right_edge.from = root.right_id;
-    right_edge.to = root.id;
-
-    if (parent_edge == null) {
-        avl_root_id = root.right_id; //update global root if needed
+    let right_edge_ids = network.getConnectedEdges(right_id);
+    for (let i = 0; i < right_edge_ids.length; i++) {
+        let edge = edges.get(right_edge_ids[i]);
+        if (edge.from == right_id && edge.to < right_id) {
+            right_to_rights_left_child_edge = edge; //found lefts right subtree edge
+        }
     }
-    edges.update(root_edge); //update the dataset
-    edges.update(right_edge);
-    if (parent_edge != null) {
-        parent_edge.to = root.right_id;
-        edges.update(parent_edge);
-        let parent = nodes.get(parent_edge.from);
-        //check to see if it is parents left or right
-        if (parent.right_id == root.id) {
-            parent.right_id = root.right_id;
+
+    if (parent_id == null) { // no parent to root, so we are at avl root
+        avl_root_id = right_id;
+    }
+
+    if (parent_id != null) {
+        parent_to_root_edge.to = right_id; //update parent to root edge
+        if (parent_node.id > right_id) {   //update parent child id
+            parent_node.left_id = right_id;
         }
 
         else {
-            parent.left_id = root.right_id;
+            parent_node.right_id = right_id;
         }
-
-        nodes.update(parent);
+        nodes.update(parent_node);
+        edges.update(parent_to_root_edge);
     }
-    let right_node = nodes.get(root.right_id);
-    root.right_id = nodes.get(root.right_id).left_id;
-    right_node.left_id = root.id;
 
+    let subtree_id;
+    if (rights_left_child_id != null) {
+        subtree_id = rights_left_child_id;
+        root.right_id = subtree_id;
+        left_to_lefts_right_child_edge.from = root.id;
+        edges.update(left_to_lefts_right_child_edge); //check
+    }
+    if (rights_left_child_id == null) {
+        root.right_id = null;
+    }
+
+    right_child.left_id = root.id;
     nodes.update(root);
-    nodes.update(right_node);
+    nodes.update(right_child);
+
+    root_to_right_child_edge.from = right_id;
+    root_to_right_child_edge.to = root.id;
+
+    edges.update(root_to_right_child_edge);
+
     network.fit();
     set_node_balances();
-    realign_all_nodes()
+    realign_all_nodes();
 }
 
 function cw_rotate(root) { // NOTE: root from dataset
-    if (root == null) { //if no root specified, perform on selected node
-        root = nodes.get(network.getSelectedNodes()[0]);
-    }
-    if (root.left_id == null || nodes.get(root.left_id).right_id == null) { //check to see if balacing is valid
-        return;
-    }
-    let root_edges = network.getConnectedEdges(root.id); //get edges from root
-    let left_edges = network.getConnectedEdges(root.left_id); //get edges from left child
+    let left_id = root.left_id;
+    let left_child = nodes.get(left_id);
 
-    //find edge from root to left child
-    let root_edge = null;
-    let parent_edge = null;
-    for (let i = 0; i < root_edges.length; i++) {
-        let edge = edges.get(root_edges[i]);
-        if (edge.to == root.left_id) {
-            root_edge = edge;
+    let lefts_right_child_id = left_child.right_id; //could be null
+    let lefts_right_child = lefts_right_child_id == null ? null : nodes.get(lefts_right_child_id);
+
+    let parent_id = null; //could or could not exist, if avl root then does not exist
+    let parent_node = null; //if avl root then update global is needed
+
+    let root_to_left_child_edge = null;
+    let parent_to_root_edge = null; //may or may not exist
+    let left_to_lefts_right_child_edge = null; //may or may not exist
+
+    let root_edge_ids = network.getConnectedEdges(root.id);
+    for (let i = 0; i < root_edge_ids.length; i++) {
+        let edge = edges.get(root_edge_ids[i]);
+        if (edge.to == root.id) {   //means parent node also found
+            parent_to_root_edge = edge;
+            parent_id = edge.from;
+            parent_node = nodes.get(parent_id);
         }
-        if (edge.to == root.id) {
-            parent_edge = edge; //find parent edge is applicable
-        }
-    }
-    //find edge from left child to left child's right child
-    let left_edge = null;
-    for (let i = 0; i < left_edges.length; i++) {
-        let edge = edges.get(left_edges[i]);
-        if (edge.to == nodes.get(root.left_id).right_id) {
-            left_edge = edge;
+
+        if (edge.to == left_id) {  //root to left child edge found
+            root_to_left_child_edge = edge;
         }
     }
-
-    root_edge.to = nodes.get(root.left_id).right_id; //change where each edge points
-    left_edge.from = root.left_id;
-    left_edge.to = root.id;
-
-    if (parent_edge == null) {
-        avl_root_id = root.left_id; //update global root if needed
+    let left_edge_ids = network.getConnectedEdges(left_id);
+    for (let i = 0; i < left_edge_ids.length; i++) {
+        let edge = edges.get(left_edge_ids[i]);
+        if (edge.from == left_id && edge.to > left_id) {
+            left_to_lefts_right_child_edge = edge; //found lefts right subtree edge
+        }
     }
 
-    edges.update(root_edge); //update the dataset
-    edges.update(left_edge);
-    if (parent_edge != null) {
-        parent_edge.to = root.left_id;
-        edges.update(parent_edge);
-        let parent = nodes.get(parent_edge.from);
-        parent.left_id = root.left_id;
-        //check to see if it is parents left or right
-        if (parent.right_id == root.id) {
-            parent.right_id = root.left_id;
+    if (parent_id == null) { // no parent to root, so we are at avl root
+        avl_root_id = left_id;
+    }
+
+    if (parent_id != null) {
+        parent_to_root_edge.to = left_id; //update parent to root edge
+        if (parent_node.id > left_id) {   //update parent child id
+            parent_node.left_id = left_id;
         }
 
         else {
-            parent.left_id = root.left_id;
+            parent_node.right_id = left_id;
         }
-        nodes.update(parent);
+        nodes.update(parent_node);
+        edges.update(parent_to_root_edge);
     }
 
-    //need to update node left and right ids
-        let left_node = nodes.get(root.left_id);
-        root.left_id = nodes.get(root.left_id).right_id;
-        left_node.right_id = root.id;
+    let subtree_id;
+    if (lefts_right_child_id != null) {
+        subtree_id = lefts_right_child_id;
+        root.left_id = subtree_id;
+        left_to_lefts_right_child_edge.from = root.id;
+        edges.update(left_to_lefts_right_child_edge);
+    }
+    if (lefts_right_child_id == null) {
+        root.left_id = null;
+    }
 
+    left_child.right_id = root.id;
     nodes.update(root);
-    nodes.update(left_node);
+    nodes.update(left_child);
+
+    root_to_left_child_edge.from = left_id;
+    root_to_left_child_edge.to = root.id;
+
+    edges.update(root_to_left_child_edge);
+
     network.fit();
     set_node_balances();
-    realign_all_nodes()
+    realign_all_nodes();
 }
 //----------------------------------------------------------------------------------------//
 function realign_all_nodes() {
