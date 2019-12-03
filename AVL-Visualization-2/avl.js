@@ -129,7 +129,7 @@ function create_tree() {
     }
 }
 //----------------------------------------------------------------------------------------//
-function delete_node() {
+function delete_node() { //rebalancing needed
     let node_to_delete = nodes.get(network.getSelectedNodes()[0]);
 
     let num_nodes = nodes.get().length;
@@ -352,6 +352,8 @@ async function insert(node_id, val_to_insert) { //rebalancing needed
         realign_children(node_id);
         set_node_balances();
         insertion_location_found = false;
+
+        balance_tree();
     }
 }
 //----------------------------------------------------------------------------------------//
@@ -456,10 +458,85 @@ function set_node_color(node_id, color) {
     nodes.update(node);
 }
 //----------------------------------------------------------------------------------------//
-function find_unbalanced_node(starting_id) {
+function balance_tree() {
+    let unbalanced_id = find_unbalanced_node_id();
+    if (unbalanced_id == null) {
+        return;
+    }
 
+    console.log("need balancing");
+    let unbalanced_node = nodes.get(unbalanced_id);
+    let child_id;
+
+    if (unbalanced_node.balance > 1) {
+        child_id = unbalanced_node.left_id;
+    }
+
+    if (unbalanced_node.balance < -1) {
+        child_id = unbalanced_node.right_id;
+    }
+
+    let unbalanced_child_node = nodes.get(child_id);
+
+    if (unbalanced_node.balance > 1 && unbalanced_child_node.balance == 1) {
+        left_left_balance(unbalanced_id);
+        return;
+    }
+
+    if (unbalanced_node.balance > 1 && unbalanced_child_node.balance == -1) {
+        left_right_balance(unbalanced_id, child_id);
+        return;
+    }
+
+    if (unbalanced_node.balance < -1 && unbalanced_child_node.balance == -1) {
+        right_right(unbalanced_id);
+        return;
+    }
+
+    if (unbalanced_node.balance < -1 && unbalanced_child_node.balance == 1) {
+        right_left_balance(unbalanced_id, child_id);
+        return;
+    }
+}
+
+function left_left_balance(unbalanced_id) {
+    console.log("doing left left");
+    let unbalanced_node = nodes.get(unbalanced_id);
+    cw_rotate(unbalanced_node);
+}
+
+function left_right_balance(unbalanced_id, unbalanced_child_id) {
+    let unbalanced_node = nodes.get(unbalanced_id);
+    let unbalanced_child_node = nodes.get(unbalanced_child_id);
+
+    ccw_rotate(unbalanced_child_node);
+    cw_rotate(unbalanced_node);
+}
+
+function right_right_balance(unbalanced_id) {
+    let unbalanced_node = nodes.get(unbalanced_id);
+    ccw_rotate(unbalanced_node);
+}
+
+function right_left_balance(unbalanced_id, unbalanced_child_id) {
+    let unbalanced_node = nodes.get(unbalanced_id);
+    let unbalanced_child_node = nodes.get(unbalanced_child_id);
+
+    cw_rotate(unbalanced_child_node);
+    ccw_rotate(unbalanced_node);
+}
+
+function find_unbalanced_node_id() {
+    let all_nodes = nodes.get();
+    for (let i = 0; i < all_nodes.length; i++) {
+        if (all_nodes[i].balance > 1 || all_nodes[i].balance < -1) {
+            return all_nodes[i].id;
+        }
+    }
+    return null;
 }
 //----------------------------------------------------------------------------------------//
+//FIXME: rotations not working correctly when balancing
 function ccw_rotate(root) { //NOTE: root from dataset
     if (root == null) { //if no root specified, perform on selected node
         root = nodes.get(network.getSelectedNodes()[0]);
@@ -585,9 +662,9 @@ function cw_rotate(root) { // NOTE: root from dataset
     }
 
     //need to update node left and right ids
-    let left_node = nodes.get(root.left_id);
-    root.left_id = nodes.get(root.left_id).right_id;
-    left_node.right_id = root.id;
+        let left_node = nodes.get(root.left_id);
+        root.left_id = nodes.get(root.left_id).right_id;
+        left_node.right_id = root.id;
 
     nodes.update(root);
     nodes.update(left_node);
