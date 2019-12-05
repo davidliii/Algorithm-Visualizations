@@ -351,5 +351,5 @@ function set_path_node(id) {
 }
 
 function set_path_edge(id) {
-    highlight_edge(id, "#9585ff");
+    highlight_edge(id, "#3503fc");
 }
